@@ -1,0 +1,1491 @@
+2026-02-16 08:45:06,203 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=True, channel=TRUE NORTH - VIP
+2026-02-16 08:45:06,203 [WARNING] signal_trader: DRY-RUN MODE — no real trades will be executed
+2026-02-16 08:45:06,203 [INFO] signal_trader: Signal Trader started. Waiting for Phase 5 integration...
+2026-02-16 08:48:41,069 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=True, channel=TRUE NORTH - VIP
+2026-02-16 09:13:46,922 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 09:49:46,055 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 09:49:46,109 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 09:49:46,548 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 09:49:46,551 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 09:49:46,638 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 09:49:47,228 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-16 09:49:47,229 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-16 10:16:04,867 [INFO] signal_trader.listener: Channel message: Who wants to risk?
+2026-02-16 10:16:04,983 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:17:06,892 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+2026-02-16 10:17:06,892 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:18:27,759 [INFO] signal_trader.listener: Channel message: TP1 Hit!!!
+2026-02-16 10:18:27,760 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:18:52,151 [INFO] signal_trader.listener: Channel message: it went back to entry!
+2026-02-16 10:18:52,152 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:20:35,015 [INFO] signal_trader.listener: Channel message: TP1 hit for the 2nd time
+2026-02-16 10:20:35,016 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:20:42,452 [INFO] signal_trader.listener: Channel message: it went back to entry again!
+2026-02-16 10:20:42,453 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:21:30,502 [INFO] signal_trader.listener: Channel message: TP1 hit again for the 3rd time!!!
+2026-02-16 10:21:30,503 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:22:18,682 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 10:23:17,161 [INFO] signal_trader.listener: Channel message: it went back to entry again
+2026-02-16 10:23:17,162 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:27:28,104 [INFO] signal_trader.listener: Channel message: TP1 Hit again the 4th time now!!!
+2026-02-16 10:27:28,106 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:31:46,145 [INFO] signal_trader.listener: Channel message: edit your stop loss to Entry price!
+2026-02-16 10:31:46,145 [ERROR] signal_trader.parser: Claude API error: "Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted"
+2026-02-16 10:36:23,811 [INFO] telethon.network.mtprotosender: Disconnecting from 91.108.56.173:443/TcpFull...
+2026-02-16 10:36:23,811 [INFO] telethon.network.mtprotosender: Disconnection from 91.108.56.173:443/TcpFull complete!
+2026-02-16 10:36:23,829 [INFO] signal_trader: Shutting down...
+2026-02-16 10:36:23,830 [INFO] telethon.network.mtprotosender: Not disconnecting (already have no connection)
+2026-02-16 10:36:23,835 [INFO] signal_trader.listener: Telethon disconnected
+2026-02-16 10:36:23,835 [INFO] signal_trader.mt5: MT5 disconnected
+2026-02-16 10:36:23,837 [INFO] signal_trader: Signal Trader stopped.
+2026-02-16 10:36:30,800 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 10:36:30,891 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 10:36:30,894 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 10:36:30,896 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 10:36:30,985 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 10:36:31,595 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-16 10:36:31,595 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-16 10:49:23,349 [INFO] signal_trader.listener: Channel message: congratulations good thing we did trailing stop loss. 
+
+If you took profit on this trade drop your emojis!!! 
+
+See you l
+2026-02-16 10:49:29,708 [INFO] signal_trader.parser: Parsed: type=NOISE | congratulations good thing we did trailing stop loss. 
+
+If you took profit on th
+2026-02-16 10:49:29,709 [INFO] signal_trader.trade: NOISE — ignoring: congratulations good thing we did trailing stop loss. 
+
+If you took profit on this trade drop your e
+2026-02-16 11:39:44,411 [INFO] telethon.network.mtprotosender: Disconnecting from 91.108.56.173:443/TcpFull...
+2026-02-16 11:39:44,412 [INFO] telethon.network.mtprotosender: Disconnection from 91.108.56.173:443/TcpFull complete!
+2026-02-16 11:39:44,431 [INFO] signal_trader: Shutting down...
+2026-02-16 11:39:44,431 [INFO] telethon.network.mtprotosender: Not disconnecting (already have no connection)
+2026-02-16 11:39:44,437 [INFO] signal_trader.listener: Telethon disconnected
+2026-02-16 11:39:44,437 [INFO] signal_trader.mt5: MT5 disconnected
+2026-02-16 11:39:44,438 [INFO] signal_trader: Signal Trader stopped.
+2026-02-16 11:39:54,818 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 11:39:54,833 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 11:39:54,835 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 11:39:54,837 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 11:39:54,926 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 11:39:55,621 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-16 11:39:55,621 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-16 11:40:14,392 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 11:40:14,406 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 11:40:14,408 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 11:40:14,411 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 11:40:14,498 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 11:54:10,385 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 11:54:10,399 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 11:54:10,400 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 11:54:10,404 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 11:54:10,493 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 11:54:11,119 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-16 11:54:11,120 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-16 12:51:49,442 [INFO] signal_trader.listener: Channel message: https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-16 12:51:55,771 [INFO] signal_trader.parser: Parsed: type=NOISE | https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-16 12:51:55,772 [INFO] signal_trader.trade: NOISE — ignoring: https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-16 14:03:22,672 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+
+PRICE 4993
+
+SL 4980
+
+TP1 4996
+
+TP2 4999
+
+TP3 5004
+2026-02-16 14:03:29,715 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4993
+
+SL 4980
+
+TP1 4996
+
+TP2 4999
+
+TP3 5004
+2026-02-16 14:03:29,734 [ERROR] signal_trader.mt5: Order failed: retcode=10030, comment=Unsupported filling mode
+2026-02-16 14:03:29,734 [ERROR] signal_trader.trade: Order failed: Unsupported filling mode
+2026-02-16 14:08:21,054 [INFO] telethon.network.mtprotosender: Disconnecting from 91.108.56.173:443/TcpFull...
+2026-02-16 14:08:21,054 [INFO] telethon.network.mtprotosender: Disconnection from 91.108.56.173:443/TcpFull complete!
+2026-02-16 14:08:21,059 [INFO] signal_trader: Shutting down...
+2026-02-16 14:08:21,059 [INFO] telethon.network.mtprotosender: Not disconnecting (already have no connection)
+2026-02-16 14:08:21,065 [INFO] signal_trader.listener: Telethon disconnected
+2026-02-16 14:08:21,065 [INFO] signal_trader.mt5: MT5 disconnected
+2026-02-16 14:08:21,065 [INFO] signal_trader: Signal Trader stopped.
+2026-02-16 14:08:40,237 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 14:08:40,251 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 14:08:40,253 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 14:08:40,256 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 14:08:40,345 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 14:08:41,005 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-16 14:08:41,005 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-16 14:14:07,343 [INFO] signal_trader.listener: Channel message: TP1 HIT!!!!
+2026-02-16 14:14:13,710 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 HIT!!!!
+2026-02-16 15:02:24,442 [INFO] signal_trader.listener: Channel message: We hit TP1 2x.  then it went down.
+2026-02-16 15:02:30,227 [INFO] signal_trader.parser: Parsed: type=TP_HIT | We hit TP1 2x.  then it went down.
+2026-02-16 15:10:04,674 [INFO] signal_trader.listener: Channel message: lets wait for a better entry tomorrow during NY Session
+2026-02-16 15:10:10,917 [INFO] signal_trader.parser: Parsed: type=NOISE | lets wait for a better entry tomorrow during NY Session
+2026-02-16 15:10:10,917 [INFO] signal_trader.trade: NOISE — ignoring: lets wait for a better entry tomorrow during NY Session
+2026-02-16 16:31:09,075 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 16:31:09,091 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 16:31:09,092 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-16 16:31:09,092 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-16 17:41:12,386 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 17:41:12,402 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 17:41:12,403 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-16 17:41:12,403 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-16 17:41:12,460 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: Spread: 42 points (0.42 price units)
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: Current price: bid=4997.69, ask=4998.11
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: Account: balance=81.77, equity=81.77, margin_free=81.77, leverage=1:500
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-16 17:41:12,461 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-16 17:41:12,463 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 17:41:12,467 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 17:41:12,555 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 17:41:13,175 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-16 17:41:13,176 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-16 17:49:15,547 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Filling mode: 1 (FOK=True, IOC=False) -> using 0
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Spread: 42 points (0.42 price units)
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Current price: bid=4998.30, ask=4998.72
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Account: balance=81.77, equity=81.77, margin_free=81.77, leverage=1:500
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-16 17:49:15,567 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-16 17:49:15,567 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-16 17:49:15,578 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-16 17:49:15,670 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-16 17:49:16,321 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-16 17:49:16,321 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-17 00:20:46,689 [INFO] signal_trader.listener: Channel message: who wants to trade?
+2026-02-17 00:20:57,530 [INFO] signal_trader.parser: Parsed: type=NOISE | who wants to trade?
+2026-02-17 00:20:57,534 [INFO] signal_trader.trade: NOISE — ignoring: who wants to trade?
+2026-02-17 00:20:58,097 [INFO] signal_trader.listener: Channel message: ready to risk?
+2026-02-17 00:21:04,705 [INFO] signal_trader.parser: Parsed: type=NOISE | ready to risk?
+2026-02-17 00:21:04,706 [INFO] signal_trader.trade: NOISE — ignoring: ready to risk?
+2026-02-17 00:25:01,425 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+2026-02-17 00:25:10,498 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+2026-02-17 00:25:10,578 [WARNING] signal_trader.trade: Could not auto-calculate SL
+2026-02-17 00:30:23,410 [INFO] signal_trader.listener: Channel message: We can close this trade when it goes back to entry price
+2026-02-17 00:30:31,294 [INFO] signal_trader.parser: Parsed: type=CLOSE_SIGNAL | We can close this trade when it goes back to entry price
+2026-02-17 00:30:31,297 [INFO] signal_trader.trade: No active trade — ignoring close signal
+2026-02-17 02:37:52,761 [INFO] signal_trader.listener: Channel message: Good thing we closed the trade. Before it drops...
+2026-02-17 02:38:01,066 [INFO] signal_trader.parser: Parsed: type=NOISE | Good thing we closed the trade. Before it drops...
+2026-02-17 02:38:01,068 [INFO] signal_trader.trade: NOISE — ignoring: Good thing we closed the trade. Before it drops...
+2026-02-17 08:03:43,009 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-17 08:03:43,124 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-17 08:03:43,128 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-17 08:03:43,129 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-17 08:03:43,129 [INFO] signal_trader.mt5: Filling mode: 1 (FOK=True, IOC=False) -> using 0
+2026-02-17 08:03:43,129 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-17 08:03:43,129 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-17 08:03:43,131 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-17 08:03:43,131 [INFO] signal_trader.mt5: Spread: 42 points (0.42 price units)
+2026-02-17 08:03:43,131 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-17 08:03:43,131 [INFO] signal_trader.mt5: Current price: bid=4993.48, ask=4993.90
+2026-02-17 08:03:43,131 [INFO] signal_trader.mt5: Account: balance=81.77, equity=81.77, margin_free=81.77, leverage=1:500
+2026-02-17 08:03:43,131 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-17 08:03:43,132 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-17 08:03:43,133 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-17 08:03:43,170 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-17 08:03:43,259 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-17 08:03:43,877 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-17 08:03:43,877 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-17 11:42:39,541 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+
+PRICE 4970
+2026-02-17 11:42:51,422 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4970
+2026-02-17 11:42:51,497 [INFO] signal_trader.trade: Auto-calculated SL: 4960.00
+2026-02-17 11:42:51,543 [WARNING] signal_trader.trade: Signal validation failed: No TP levels
+2026-02-17 11:42:52,417 [INFO] signal_trader.listener: Channel EDIT (msg_id=5794): BUY NOW XAUUSD
+
+PRICE 4970
+2026-02-17 11:42:59,930 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4970
+2026-02-17 11:42:59,933 [INFO] signal_trader.trade: Auto-calculated SL: 4960.00
+2026-02-17 11:42:59,934 [WARNING] signal_trader.trade: Signal validation failed: No TP levels
+2026-02-17 11:43:02,644 [INFO] signal_trader.listener: Channel EDIT (msg_id=5794): BUY NOW XAUUSD
+
+PRICE 4970
+
+TP1 4972
+
+TP2 4977
+
+TP3 4982
+2026-02-17 11:43:12,595 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4970
+
+TP1 4972
+
+TP2 4977
+
+TP3 4982
+2026-02-17 11:43:12,597 [INFO] signal_trader.trade: Auto-calculated SL: 4960.00
+2026-02-17 11:43:12,987 [INFO] signal_trader.mt5: Position opened: ticket=403330989, price=0.00, lot=0.01
+2026-02-17 11:43:12,999 [INFO] signal_trader.trade: BUY MARKET XAUUSD @ 4970.00
+   SL: 4960.00 | TPs: 4972, 4977, 4982
+   Lot: 0.01 | Risk: $10.00
+2026-02-17 11:45:04,261 [INFO] signal_trader.listener: Channel EDIT (msg_id=5794): BUY NOW XAUUSD
+
+PRICE 4970
+
+SL 4960
+
+TP1 4972
+
+TP2 4977
+
+TP3 4982
+2026-02-17 11:45:13,794 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4970
+
+SL 4960
+
+TP1 4972
+
+TP2 4977
+
+TP3 4982
+2026-02-17 11:45:13,795 [INFO] signal_trader.trade: Trade already open (ticket=403330989) — ignoring new signal
+2026-02-17 11:48:37,713 [INFO] signal_trader.listener: Channel message: guys lets closed this trade
+2026-02-17 11:48:42,488 [INFO] signal_trader.listener: Channel message: on entey price
+2026-02-17 11:48:45,538 [INFO] signal_trader.parser: Parsed: type=CLOSE_SIGNAL | guys lets closed this trade
+2026-02-17 11:48:45,914 [INFO] signal_trader.mt5: Position closed: ticket=403330989, price=0.00
+2026-02-17 11:48:45,918 [INFO] signal_trader.trade: Position closed @ 0.00 — provider says close
+2026-02-17 11:48:49,560 [INFO] signal_trader.parser: Parsed: type=NOISE | on entey price
+2026-02-17 11:48:49,561 [INFO] signal_trader.trade: NOISE — ignoring: on entey price
+2026-02-17 11:48:49,887 [INFO] signal_trader.listener: Channel message: lets look for better entry
+2026-02-17 11:48:50,251 [INFO] signal_trader.listener: Channel EDIT (msg_id=5795): guys lets closed this trade
+2026-02-17 11:48:51,626 [INFO] signal_trader.listener: Channel EDIT (msg_id=5796): on entey price
+2026-02-17 11:48:55,104 [INFO] signal_trader.listener: Channel EDIT (msg_id=5797): lets look for better entry
+2026-02-17 11:48:57,303 [INFO] signal_trader.parser: Parsed: type=NOISE | lets look for better entry
+2026-02-17 11:48:57,304 [INFO] signal_trader.trade: NOISE — ignoring: lets look for better entry
+2026-02-17 11:48:57,538 [INFO] signal_trader.parser: Parsed: type=CLOSE_SIGNAL | guys lets closed this trade
+2026-02-17 11:48:57,539 [INFO] signal_trader.trade: No active trade — ignoring close signal
+2026-02-17 11:48:59,435 [INFO] signal_trader.parser: Parsed: type=NOISE | on entey price
+2026-02-17 11:48:59,435 [INFO] signal_trader.trade: NOISE — ignoring: on entey price
+2026-02-17 11:49:02,514 [INFO] signal_trader.parser: Parsed: type=NOISE | lets look for better entry
+2026-02-17 11:49:02,515 [INFO] signal_trader.trade: NOISE — ignoring: lets look for better entry
+2026-02-17 11:49:56,712 [INFO] signal_trader.listener: Channel message: volume's too weak
+2026-02-17 11:50:02,106 [INFO] signal_trader.listener: Channel EDIT (msg_id=5798): volume's too weak
+2026-02-17 11:50:03,326 [INFO] signal_trader.parser: Parsed: type=NOISE | volume's too weak
+2026-02-17 11:50:03,328 [INFO] signal_trader.trade: NOISE — ignoring: volume's too weak
+2026-02-17 11:50:09,167 [INFO] signal_trader.parser: Parsed: type=NOISE | volume's too weak
+2026-02-17 11:50:09,167 [INFO] signal_trader.trade: NOISE — ignoring: volume's too weak
+2026-02-17 11:53:49,697 [INFO] signal_trader.listener: Channel message: good thing we closed this trade
+2026-02-17 11:53:54,548 [INFO] signal_trader.listener: Channel EDIT (msg_id=5799): good thing we closed this trade
+2026-02-17 11:53:56,889 [INFO] signal_trader.parser: Parsed: type=NOISE | good thing we closed this trade
+2026-02-17 11:53:56,890 [INFO] signal_trader.trade: NOISE — ignoring: good thing we closed this trade
+2026-02-17 11:54:00,395 [INFO] signal_trader.parser: Parsed: type=NOISE | good thing we closed this trade
+2026-02-17 11:54:00,396 [INFO] signal_trader.trade: NOISE — ignoring: good thing we closed this trade
+2026-02-17 12:47:20,630 [INFO] signal_trader.listener: Channel message: DAY 2 of Profitability Series!!!
+2026-02-17 12:47:23,131 [INFO] signal_trader.listener: Channel message: https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-17 12:47:28,140 [INFO] signal_trader.listener: Channel EDIT (msg_id=5801): https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-17 12:47:31,407 [INFO] signal_trader.parser: Parsed: type=NOISE | https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-17 12:47:31,408 [INFO] signal_trader.trade: NOISE — ignoring: https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-17 12:47:31,686 [INFO] signal_trader.listener: Channel EDIT (msg_id=5800): DAY 2 of Profitability Series!!!
+2026-02-17 12:47:31,968 [INFO] signal_trader.parser: Parsed: type=NOISE | DAY 2 of Profitability Series!!!
+2026-02-17 12:47:31,968 [INFO] signal_trader.trade: NOISE — ignoring: DAY 2 of Profitability Series!!!
+2026-02-17 12:47:37,241 [INFO] signal_trader.parser: Parsed: type=NOISE | https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-17 12:47:37,242 [INFO] signal_trader.trade: NOISE — ignoring: https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-17 12:47:39,069 [INFO] signal_trader.parser: Parsed: type=NOISE | DAY 2 of Profitability Series!!!
+2026-02-17 12:47:39,070 [INFO] signal_trader.trade: NOISE — ignoring: DAY 2 of Profitability Series!!!
+2026-02-17 16:25:38,540 [INFO] signal_trader.listener: Channel message: ready?
+2026-02-17 16:25:42,876 [INFO] signal_trader.listener: Channel EDIT (msg_id=5802): ready?
+2026-02-17 16:25:45,726 [INFO] signal_trader.parser: Parsed: type=NOISE | ready?
+2026-02-17 16:25:45,730 [INFO] signal_trader.trade: NOISE — ignoring: ready?
+2026-02-17 16:25:49,167 [INFO] signal_trader.parser: Parsed: type=NOISE | ready?
+2026-02-17 16:25:49,167 [INFO] signal_trader.trade: NOISE — ignoring: ready?
+2026-02-17 16:25:55,218 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+2026-02-17 16:25:57,442 [INFO] signal_trader.listener: Channel EDIT (msg_id=5803): BUY NOW XAUUSD
+2026-02-17 16:26:02,859 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+2026-02-17 16:26:02,913 [WARNING] signal_trader.trade: Could not auto-calculate SL
+2026-02-17 16:26:04,776 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+2026-02-17 16:26:04,777 [WARNING] signal_trader.trade: Could not auto-calculate SL
+2026-02-17 16:26:46,087 [INFO] signal_trader.listener: Channel EDIT (msg_id=5803): BUY NOW XAUUSD
+
+PRICE 4890
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+2026-02-17 16:26:54,115 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4890
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+2026-02-17 16:26:54,118 [INFO] signal_trader.trade: Auto-calculated SL: 4880.00
+2026-02-17 16:26:54,132 [WARNING] signal_trader.trade: Signal validation failed: Signal too old (60s > 60s)
+2026-02-17 16:26:59,686 [INFO] signal_trader.listener: Channel EDIT (msg_id=5803): BUY NOW XAUUSD
+
+PRICE 4890
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+
+TP3 4907
+2026-02-17 16:27:06,056 [INFO] signal_trader.listener: Channel EDIT (msg_id=5803): BUY NOW XAUUSD
+
+PRICE 4890
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+
+TP4 4907
+2026-02-17 16:27:07,462 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4890
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+
+TP3 4907
+2026-02-17 16:27:07,466 [INFO] signal_trader.trade: Auto-calculated SL: 4880.00
+2026-02-17 16:27:07,466 [WARNING] signal_trader.trade: Signal validation failed: Signal too old (73s > 60s)
+2026-02-17 16:27:13,067 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4890
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+
+TP4 4907
+2026-02-17 16:27:13,080 [INFO] signal_trader.trade: Auto-calculated SL: 4880.00
+2026-02-17 16:27:13,080 [WARNING] signal_trader.trade: Signal validation failed: Signal too old (79s > 60s)
+2026-02-17 16:27:24,788 [INFO] signal_trader.listener: Channel message: TP1 hit!
+2026-02-17 16:27:31,759 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 hit!
+2026-02-17 16:27:32,139 [INFO] signal_trader.listener: Channel EDIT (msg_id=5804): TP1 hit!
+2026-02-17 16:27:38,607 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 hit!
+2026-02-17 16:28:01,022 [INFO] signal_trader.listener: Channel message: TP2 Hit!!!
+2026-02-17 16:28:07,696 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 Hit!!!
+2026-02-17 16:28:11,506 [INFO] signal_trader.listener: Channel message: edit yur stop loss to your entry price!!!
+2026-02-17 16:28:18,280 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | edit yur stop loss to your entry price!!!
+2026-02-17 16:28:18,282 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-17 16:29:36,102 [INFO] signal_trader.listener: Channel EDIT (msg_id=5803): BUY NOW XAUUSD
+
+PRICE 4890
+
+SL 4875
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+
+TP4 4907
+
+TP5 4912
+2026-02-17 16:29:43,168 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4890
+
+SL 4875
+
+TP1 4892
+
+TP2 4897
+
+TP3 4902
+
+TP4 4907
+
+TP5
+2026-02-17 16:29:43,171 [WARNING] signal_trader.trade: Signal validation failed: Signal too old (229s > 60s)
+2026-02-17 16:30:02,148 [INFO] signal_trader.listener: Channel EDIT (msg_id=5806): edit yur stop loss to your entry price!!!
+2026-02-17 16:30:08,916 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | edit yur stop loss to your entry price!!!
+2026-02-17 16:30:08,917 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-17 16:34:16,190 [INFO] signal_trader.listener: Channel message: good thing we did trailing stoploss
+2026-02-17 16:34:23,136 [INFO] signal_trader.parser: Parsed: type=NOISE | good thing we did trailing stoploss
+2026-02-17 16:34:23,136 [INFO] signal_trader.trade: NOISE — ignoring: good thing we did trailing stoploss
+2026-02-17 16:34:23,570 [INFO] signal_trader.listener: Channel EDIT (msg_id=5807): good thing we did trailing stoploss
+2026-02-17 16:34:29,324 [INFO] signal_trader.parser: Parsed: type=NOISE | good thing we did trailing stoploss
+2026-02-17 16:34:29,324 [INFO] signal_trader.trade: NOISE — ignoring: good thing we did trailing stoploss
+2026-02-17 18:09:53,669 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-17 18:09:54,628 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-17 18:09:54,630 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Filling mode: 1 (FOK=True, IOC=False) -> using 0
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Spread: 42 points (0.42 price units)
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Current price: bid=4908.52, ask=4908.94
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Account: balance=80.33, equity=80.33, margin_free=80.33, leverage=1:500
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-17 18:09:54,632 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-17 18:09:54,650 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-17 18:09:54,669 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-17 18:09:54,758 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-17 18:09:55,889 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-17 18:09:55,891 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-17 19:28:46,318 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-17 19:28:46,355 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-17 19:28:46,370 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-17 19:28:46,370 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-17 19:28:46,370 [INFO] signal_trader.mt5: Filling mode: 1 (FOK=True, IOC=False) -> using 0
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Spread: 42 points (0.42 price units)
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Current price: bid=4919.65, ask=4920.07
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Account: balance=80.33, equity=80.33, margin_free=80.33, leverage=1:500
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-17 19:28:46,371 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-17 19:28:46,371 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-17 19:28:46,371 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-17 19:28:46,465 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-17 19:28:47,099 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-17 19:28:47,099 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-17 22:33:15,600 [INFO] signal_trader.listener: Channel EDIT (msg_id=5805): TP2 Hit!!!
+2026-02-17 22:33:24,214 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 Hit!!!
+2026-02-18 00:24:12,843 [INFO] signal_trader.listener: Channel message: Who's ready to risk today?
+2026-02-18 00:24:24,041 [INFO] signal_trader.parser: Parsed: type=NOISE | Who's ready to risk today?
+2026-02-18 00:24:24,043 [INFO] signal_trader.trade: NOISE — ignoring: Who's ready to risk today?
+2026-02-18 00:25:28,236 [INFO] signal_trader.listener: Channel message: lets wait for 5mns
+2026-02-18 00:25:36,039 [INFO] signal_trader.parser: Parsed: type=NOISE | lets wait for 5mns
+2026-02-18 00:25:36,039 [INFO] signal_trader.trade: NOISE — ignoring: lets wait for 5mns
+2026-02-18 00:26:49,890 [INFO] signal_trader.listener: Channel message: because high impact news for CAD Currency.
+2026-02-18 00:26:57,266 [INFO] signal_trader.parser: Parsed: type=NOISE | because high impact news for CAD Currency.
+2026-02-18 00:26:57,267 [INFO] signal_trader.trade: NOISE — ignoring: because high impact news for CAD Currency.
+2026-02-18 00:27:38,596 [INFO] signal_trader.listener: Channel message: My buying zone is 4913 - 4903
+
+but since there's news. im going to wait
+2026-02-18 00:27:45,971 [INFO] signal_trader.parser: Parsed: type=NOISE | My buying zone is 4913 - 4903
+
+but since there's news. im going to wait
+2026-02-18 00:27:45,971 [INFO] signal_trader.trade: NOISE — ignoring: My buying zone is 4913 - 4903
+
+but since there's news. im going to wait
+2026-02-18 00:32:45,321 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+
+PRICE 4912
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+2026-02-18 00:32:54,257 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4912
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+2026-02-18 00:32:54,322 [INFO] signal_trader.trade: Auto-calculated SL: 4902.00
+2026-02-18 00:32:54,767 [INFO] signal_trader.mt5: Position opened: ticket=403542041, price=0.00, lot=0.01
+2026-02-18 00:32:54,781 [INFO] signal_trader.trade: BUY MARKET XAUUSD @ 4912.00
+   SL: 4902.00 | TPs: 4914, 4919, 4925
+   Lot: 0.01 | Risk: $10.00
+2026-02-18 00:34:05,313 [INFO] signal_trader.listener: Channel EDIT (msg_id=5812): BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+2026-02-18 00:34:13,356 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+2026-02-18 00:36:20,985 [INFO] signal_trader.listener: Channel EDIT (msg_id=5812): BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+2026-02-18 00:36:27,835 [INFO] signal_trader.listener: Channel message: TP1 Hit!!!
+2026-02-18 00:36:29,302 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+2026-02-18 00:36:29,619 [INFO] signal_trader.mt5: SL modified: ticket=403542041, new_sl=4900.00
+2026-02-18 00:36:29,623 [INFO] signal_trader.trade: Trade updated from edit — SL: 4902.00 -> 4900.00
+2026-02-18 00:36:35,142 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 Hit!!!
+2026-02-18 00:36:35,142 [INFO] signal_trader.trade: TP1 hit! (4914.00)
+2026-02-18 00:36:48,014 [INFO] signal_trader.listener: Channel message: it went back to entry!!!
+2026-02-18 00:36:54,625 [INFO] signal_trader.parser: Parsed: type=NOISE | it went back to entry!!!
+2026-02-18 00:36:54,625 [INFO] signal_trader.trade: NOISE — ignoring: it went back to entry!!!
+2026-02-18 00:37:04,768 [INFO] signal_trader.listener: Channel message: TP1 hit again for the 2nd time!
+2026-02-18 00:37:11,672 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 hit again for the 2nd time!
+2026-02-18 00:37:11,673 [INFO] signal_trader.trade: TP1 hit! (4914.00)
+2026-02-18 00:37:19,491 [INFO] signal_trader.listener: Channel message: then it went back to entry again!!!
+2026-02-18 00:37:27,423 [INFO] signal_trader.parser: Parsed: type=NOISE | then it went back to entry again!!!
+2026-02-18 00:37:27,424 [INFO] signal_trader.trade: NOISE — ignoring: then it went back to entry again!!!
+2026-02-18 00:37:55,410 [INFO] signal_trader.listener: Channel message: OMG!!! 3rd time in a row it hit TP1 again!!!
+2026-02-18 00:38:01,665 [INFO] signal_trader.parser: Parsed: type=NOISE | OMG!!! 3rd time in a row it hit TP1 again!!!
+2026-02-18 00:38:01,666 [INFO] signal_trader.trade: NOISE — ignoring: OMG!!! 3rd time in a row it hit TP1 again!!!
+2026-02-18 00:41:06,695 [INFO] signal_trader.listener: Channel message: TP2 hit!!!
+2026-02-18 00:41:16,121 [INFO] signal_trader.listener: Channel message: edit your stop loss to Entry price!!!
+2026-02-18 00:41:16,969 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 hit!!!
+2026-02-18 00:41:16,971 [INFO] signal_trader.trade: TP2 hit! (4919.00)
+2026-02-18 00:41:23,365 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | edit your stop loss to Entry price!!!
+2026-02-18 00:41:23,366 [INFO] signal_trader.trade: New SL (0.00) is not above current SL (4900.00) for BUY — ignoring
+2026-02-18 00:41:35,458 [INFO] signal_trader.listener: Channel EDIT (msg_id=5812): BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+
+TP4 4930
+
+TP5 4935
+2026-02-18 00:41:43,663 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4925
+
+TP4 4930
+
+2026-02-18 00:41:43,683 [INFO] signal_trader.trade: Trade updated from edit — TPs: 5 levels
+2026-02-18 00:48:03,122 [INFO] signal_trader.listener: Channel message: Who wants to know why that's our trade?
+2026-02-18 00:48:10,504 [INFO] signal_trader.parser: Parsed: type=NOISE | Who wants to know why that's our trade?
+2026-02-18 00:48:10,504 [INFO] signal_trader.trade: NOISE — ignoring: Who wants to know why that's our trade?
+2026-02-18 00:49:08,759 [INFO] signal_trader.listener: Channel message: https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-18 00:49:15,986 [INFO] signal_trader.parser: Parsed: type=NOISE | https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-18 00:49:15,988 [INFO] signal_trader.trade: NOISE — ignoring: https://zoom.us/my/entrepreneurialleadershipjourney
+2026-02-18 00:49:55,632 [INFO] signal_trader.listener: Channel EDIT (msg_id=5812): BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4924
+
+TP4 4929
+
+TP5 4934
+2026-02-18 00:50:04,006 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4924
+
+TP4 4929
+
+2026-02-18 00:50:30,238 [INFO] signal_trader.listener: Channel message: TP3 Hit!!! edit your stoploss to TP1 (4914)
+2026-02-18 00:50:37,092 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP3 Hit!!! edit your stoploss to TP1 (4914)
+2026-02-18 00:50:37,094 [INFO] signal_trader.trade: TP3 hit! (4925.00)
+2026-02-18 00:56:52,647 [INFO] signal_trader.trade: Position 403542041 closed externally (SL/TP hit or manual close)
+2026-02-18 01:22:14,257 [INFO] signal_trader.listener: Channel EDIT (msg_id=5812): BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+SL 4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4924
+
+TP4 4929
+
+TP5 4934
+2026-02-18 01:22:23,726 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4912 - 4903
+
+SL 4900
+
+TP1 4914
+
+TP2 4919
+
+TP3 4924
+
+TP4 49
+2026-02-18 01:22:23,774 [ERROR] signal_trader.mt5: Order failed: retcode=10016, comment=Invalid stops
+2026-02-18 01:22:23,775 [ERROR] signal_trader.trade: Order failed: Invalid stops
+2026-02-18 09:23:25,461 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-18 09:23:26,009 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-18 09:23:26,012 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-18 09:23:26,012 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-18 09:23:26,012 [INFO] signal_trader.mt5: Filling mode: 1 (FOK=True, IOC=False) -> using 0
+2026-02-18 09:23:26,013 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-18 09:23:26,013 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-18 09:23:26,014 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-18 09:23:26,014 [INFO] signal_trader.mt5: Spread: 58 points (0.58 price units)
+2026-02-18 09:23:26,014 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-18 09:23:26,014 [INFO] signal_trader.mt5: Current price: bid=4877.15, ask=4877.73
+2026-02-18 09:23:26,014 [INFO] signal_trader.mt5: Account: balance=67.57, equity=67.57, margin_free=67.57, leverage=1:500
+2026-02-18 09:23:26,014 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-18 09:23:26,014 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-18 09:23:26,030 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-18 09:23:26,035 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-18 09:23:26,124 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-18 09:23:26,726 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-18 09:23:26,727 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-18 12:47:11,854 [INFO] signal_trader.listener: Channel message: BIY NOW XAUUSD
+
+PRICE 4883
+
+TP1 4885
+
+TP2 4890
+
+TP3 4895
+2026-02-18 12:47:19,107 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BIY NOW XAUUSD
+
+PRICE 4883
+
+TP1 4885
+
+TP2 4890
+
+TP3 4895
+2026-02-18 12:47:19,156 [INFO] signal_trader.trade: Auto-calculated SL: 4873.00
+2026-02-18 12:47:19,552 [INFO] signal_trader.mt5: Position opened: ticket=403757974, price=0.00, lot=0.01
+2026-02-18 12:47:19,557 [INFO] signal_trader.trade: BUY MARKET XAUUSD @ 4883.00
+   SL: 4873.00 | TPs: 4885, 4890, 4895
+   Lot: 0.01 | Risk: $10.00
+2026-02-18 12:48:15,692 [INFO] signal_trader.listener: Channel EDIT (msg_id=5823): BIY NOW XAUUSD
+
+PRICE 4883
+
+SL 4870
+
+TP1 4885
+
+TP2 4890
+
+TP3 4895
+2026-02-18 12:48:23,525 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BIY NOW XAUUSD
+
+PRICE 4883
+
+SL 4870
+
+TP1 4885
+
+TP2 4890
+
+TP3 4895
+2026-02-18 12:48:23,844 [INFO] signal_trader.mt5: SL modified: ticket=403757974, new_sl=4870.00
+2026-02-18 12:48:23,852 [INFO] signal_trader.trade: Trade updated from edit — SL: 4873.00 -> 4870.00
+2026-02-18 12:52:59,711 [INFO] signal_trader.listener: Channel message: TP1 Hit!!!
+2026-02-18 12:53:06,059 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 Hit!!!
+2026-02-18 12:53:06,061 [INFO] signal_trader.trade: TP1 hit! (4885.00)
+2026-02-18 12:58:58,775 [INFO] signal_trader.listener: Channel EDIT (msg_id=5823): BIY NOW XAUUSD
+
+PRICE 4883
+
+SL 4870
+
+TP1 4885
+
+TP2 4890
+
+TP3 4895
+
+TP4 4900
+
+TP5 4905
+2026-02-18 12:59:06,457 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BIY NOW XAUUSD
+
+PRICE 4883
+
+SL 4870
+
+TP1 4885
+
+TP2 4890
+
+TP3 4895
+
+TP4 4900
+
+TP5
+2026-02-18 12:59:06,465 [INFO] signal_trader.trade: Trade updated from edit — TPs: 5 levels
+2026-02-18 12:59:11,728 [INFO] signal_trader.listener: Channel message: TP2 hit!!!
+2026-02-18 12:59:19,112 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 hit!!!
+2026-02-18 12:59:19,112 [INFO] signal_trader.trade: TP2 hit! (4890.00)
+2026-02-18 12:59:40,427 [INFO] signal_trader.listener: Channel message: EDIT your Stop loss to your Entry price
+2026-02-18 12:59:46,718 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | EDIT your Stop loss to your Entry price
+2026-02-18 12:59:47,040 [INFO] signal_trader.mt5: SL modified: ticket=403757974, new_sl=4883.00
+2026-02-18 12:59:47,045 [INFO] signal_trader.trade: SL updated: 4870.00 -> 4883.00 (move SL to entry price (breakeven))
+2026-02-18 13:07:01,001 [INFO] signal_trader.trade: Position 403757974 closed externally (SL/TP hit or manual close)
+2026-02-18 13:11:59,208 [INFO] signal_trader.listener: Channel message: TP3 Hit!!
+2026-02-18 13:12:06,230 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP3 Hit!!
+2026-02-18 13:12:27,651 [INFO] signal_trader.listener: Channel message: TP4 Hit!!!
+2026-02-18 13:12:34,480 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP4 Hit!!!
+2026-02-18 13:12:41,689 [INFO] signal_trader.listener: Channel message: Edit your stop loss to TP1
+2026-02-18 13:12:49,015 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | Edit your stop loss to TP1
+2026-02-18 13:12:49,016 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-18 13:20:43,139 [INFO] signal_trader.listener: Channel message: Edit your stop loss to TP2 (4890)
+2026-02-18 13:20:52,502 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | Edit your stop loss to TP2 (4890)
+2026-02-18 13:20:52,503 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-18 13:35:24,730 [INFO] signal_trader.listener: Channel message: TP5 Hit!!! 
+
+ALL TP HIT!!!
+2026-02-18 13:35:32,438 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP5 Hit!!! 
+
+ALL TP HIT!!!
+2026-02-18 13:36:35,475 [INFO] signal_trader.listener: Channel message: Congrats everyone.
+2026-02-18 13:36:43,222 [INFO] signal_trader.parser: Parsed: type=NOISE | Congrats everyone.
+2026-02-18 13:36:43,223 [INFO] signal_trader.trade: NOISE — ignoring: Congrats everyone.
+2026-02-18 16:04:10,262 [INFO] signal_trader.listener: Channel message: Gold to the moon!!!
+2026-02-18 16:04:26,237 [INFO] signal_trader.parser: Parsed: type=NOISE | Gold to the moon!!!
+2026-02-18 16:04:26,248 [INFO] signal_trader.trade: NOISE — ignoring: Gold to the moon!!!
+2026-02-19 00:05:21,899 [INFO] signal_trader.listener: Channel message: Who's ready
+2026-02-19 00:05:30,560 [INFO] signal_trader.parser: Parsed: type=NOISE | Who's ready
+2026-02-19 00:05:30,560 [INFO] signal_trader.trade: NOISE — ignoring: Who's ready
+2026-02-19 00:05:51,230 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+2026-02-19 00:05:59,345 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+2026-02-19 00:05:59,403 [WARNING] signal_trader.trade: Could not auto-calculate SL
+2026-02-19 00:06:30,301 [INFO] signal_trader.listener: Channel EDIT (msg_id=5836): BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+2026-02-19 00:06:37,878 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+2026-02-19 00:06:37,882 [INFO] signal_trader.trade: Auto-calculated SL: 4929.00
+2026-02-19 00:06:37,884 [WARNING] signal_trader.trade: Signal validation failed: No TP levels
+2026-02-19 00:06:54,607 [INFO] signal_trader.listener: Channel EDIT (msg_id=5836): BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+2026-02-19 00:07:02,035 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+2026-02-19 00:07:02,037 [INFO] signal_trader.trade: Auto-calculated SL: 4929.00
+2026-02-19 00:07:02,418 [INFO] signal_trader.mt5: Position opened: ticket=403886493, price=0.00, lot=0.01
+2026-02-19 00:07:02,433 [INFO] signal_trader.trade: BUY MARKET XAUUSD @ 4944.00
+   SL: 4929.00 | TPs: 4946, 4951, 4956
+   Lot: 0.01 | Risk: $15.00
+2026-02-19 00:07:26,529 [INFO] signal_trader.listener: Channel EDIT (msg_id=5836): BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+
+TP4 4961
+2026-02-19 00:07:34,040 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+
+TP4 4961
+2026-02-19 00:07:34,043 [INFO] signal_trader.trade: Trade updated from edit — TPs: 4 levels
+2026-02-19 00:08:01,343 [INFO] signal_trader.listener: Channel EDIT (msg_id=5836): BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+SL 4940
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+
+TP4 4961
+2026-02-19 00:08:09,167 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+SL 4940
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+
+TP4 49
+2026-02-19 00:08:09,480 [INFO] signal_trader.mt5: SL modified: ticket=403886493, new_sl=4940.00
+2026-02-19 00:08:09,484 [INFO] signal_trader.trade: Trade updated from edit — SL: 4929.00 -> 4940.00
+2026-02-19 00:08:24,282 [INFO] signal_trader.listener: Channel message: TP1 and TP2 HIT!
+2026-02-19 00:08:31,485 [INFO] signal_trader.parser: Parsed: type=NOISE | TP1 and TP2 HIT!
+2026-02-19 00:08:31,485 [INFO] signal_trader.trade: NOISE — ignoring: TP1 and TP2 HIT!
+2026-02-19 00:10:09,073 [INFO] signal_trader.listener: Channel message: TP3 Hit!!!
+2026-02-19 00:10:19,082 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP3 Hit!!!
+2026-02-19 00:10:19,083 [INFO] signal_trader.trade: TP3 hit! (4956.00)
+2026-02-19 00:11:29,599 [INFO] signal_trader.listener: Channel EDIT (msg_id=5836): BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+SL 4940
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+
+TP4 4961
+
+TP5 4966
+2026-02-19 00:11:37,859 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4944 - 4939
+
+SL 4940
+
+TP1 4946
+
+TP2 4951
+
+TP3 4956
+
+TP4 49
+2026-02-19 00:11:37,862 [INFO] signal_trader.trade: Trade updated from edit — TPs: 5 levels
+2026-02-19 00:12:05,574 [INFO] signal_trader.listener: Channel message: Seeeshhh to the moon!!!
+2026-02-19 00:12:11,947 [INFO] signal_trader.parser: Parsed: type=NOISE | Seeeshhh to the moon!!!
+2026-02-19 00:12:11,950 [INFO] signal_trader.trade: NOISE — ignoring: Seeeshhh to the moon!!!
+2026-02-19 00:29:57,971 [INFO] signal_trader.listener: Channel message: Edit uour stop loss to Entry price
+2026-02-19 00:30:05,840 [INFO] signal_trader.listener: Channel message: for a risk free trade
+2026-02-19 00:30:09,489 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | Edit uour stop loss to Entry price
+2026-02-19 00:30:09,813 [INFO] signal_trader.mt5: SL modified: ticket=403886493, new_sl=4944.00
+2026-02-19 00:30:09,818 [INFO] signal_trader.trade: SL updated: 4940.00 -> 4944.00 (move SL to entry price (breakeven))
+2026-02-19 00:30:13,515 [INFO] signal_trader.parser: Parsed: type=NOISE | for a risk free trade
+2026-02-19 00:30:13,515 [INFO] signal_trader.trade: NOISE — ignoring: for a risk free trade
+2026-02-19 00:37:02,617 [INFO] signal_trader.listener: Channel message: tp4 and TP5 Hit!!!!
+2026-02-19 00:37:11,263 [WARNING] signal_trader.parser: Bad JSON from Claude: {"type": "TP_HIT", "tp_number": 4}
+
+---
+
+{"type": "TP_HIT", "tp_number": 5}
+2026-02-19 00:37:11,264 [INFO] signal_trader.trade: NOISE — ignoring: tp4 and TP5 Hit!!!!
+2026-02-19 01:22:13,372 [INFO] signal_trader.listener: Channel message: CONGRATULATIONS Everyone!!!
+2026-02-19 01:22:23,498 [INFO] signal_trader.parser: Parsed: type=NOISE | CONGRATULATIONS Everyone!!!
+2026-02-19 01:22:23,499 [INFO] signal_trader.trade: NOISE — ignoring: CONGRATULATIONS Everyone!!!
+2026-02-19 05:05:22,112 [INFO] signal_trader.trade: Position 403886493 closed externally (SL/TP hit or manual close)
+2026-02-19 10:08:10,189 [INFO] signal_trader.listener: Channel message: who wants to tke a risk?
+2026-02-19 10:08:18,429 [INFO] signal_trader.parser: Parsed: type=NOISE | who wants to tke a risk?
+2026-02-19 10:08:18,432 [INFO] signal_trader.trade: NOISE — ignoring: who wants to tke a risk?
+2026-02-19 10:25:51,703 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+
+PRICE 4980
+2026-02-19 10:26:02,357 [INFO] signal_trader.parser: Parsed: type=NOISE | BUY NOW XAUUSD
+
+PRICE 4980
+2026-02-19 10:26:02,358 [INFO] signal_trader.trade: NOISE — ignoring: BUY NOW XAUUSD
+
+PRICE 4980
+2026-02-19 10:26:13,559 [INFO] signal_trader.listener: Channel EDIT (msg_id=5846): BUY NOW XAUUSD
+
+PRICE 4980
+
+TP1 4982
+
+TP2 4987
+
+TP3 4992
+2026-02-19 10:26:22,239 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4980
+
+TP1 4982
+
+TP2 4987
+
+TP3 4992
+2026-02-19 10:26:22,285 [INFO] signal_trader.trade: Auto-calculated SL: 4970.00
+2026-02-19 10:26:22,623 [INFO] signal_trader.mt5: Position opened: ticket=404061024, price=0.00, lot=0.01
+2026-02-19 10:26:22,633 [INFO] signal_trader.trade: BUY MARKET XAUUSD @ 4980.00
+   SL: 4970.00 | TPs: 4982, 4987, 4992
+   Lot: 0.01 | Risk: $10.00
+2026-02-19 10:30:22,643 [INFO] signal_trader.listener: Channel EDIT (msg_id=5846): BUY NOW XAUUSD
+
+PRICE 4980
+
+SL 4960
+
+TP1 4982
+
+TP2 4987
+
+TP3 4992
+
+Tp4 4997
+
+TP5 5002
+2026-02-19 10:30:31,330 [INFO] signal_trader.listener: Channel message: TP1 Hit!!!
+2026-02-19 10:30:35,938 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4980
+
+SL 4960
+
+TP1 4982
+
+TP2 4987
+
+TP3 4992
+
+Tp4 4997
+
+TP5
+2026-02-19 10:30:36,191 [INFO] signal_trader.mt5: SL modified: ticket=404061024, new_sl=4960.00
+2026-02-19 10:30:36,196 [INFO] signal_trader.trade: Trade updated from edit — SL: 4970.00 -> 4960.00, TPs: 5 levels
+2026-02-19 10:30:39,601 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 Hit!!!
+2026-02-19 10:30:39,602 [INFO] signal_trader.trade: TP1 hit! (4982.00)
+2026-02-19 10:33:27,463 [INFO] signal_trader.listener: Channel message: TP2 Hit!!!
+2026-02-19 10:33:35,049 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 Hit!!!
+2026-02-19 10:33:35,050 [INFO] signal_trader.trade: TP2 hit! (4987.00)
+2026-02-19 10:33:46,527 [INFO] signal_trader.listener: Channel message: edit your stop loss to 4981
+2026-02-19 10:33:54,261 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | edit your stop loss to 4981
+2026-02-19 10:33:54,516 [INFO] signal_trader.mt5: SL modified: ticket=404061024, new_sl=4981.00
+2026-02-19 10:33:54,524 [INFO] signal_trader.trade: SL updated: 4960.00 -> 4981.00 (edit stop loss to 4981)
+2026-02-19 10:35:58,727 [INFO] signal_trader.trade: Position 404061024 closed externally (SL/TP hit or manual close)
+2026-02-19 10:39:22,298 [INFO] signal_trader.listener: Channel message: it went back to entry price
+2026-02-19 10:39:30,947 [INFO] signal_trader.parser: Parsed: type=NOISE | it went back to entry price
+2026-02-19 10:39:30,947 [INFO] signal_trader.trade: NOISE — ignoring: it went back to entry price
+2026-02-19 10:40:59,960 [INFO] signal_trader.listener: Channel message: TP1 Hits again
+2026-02-19 10:41:07,245 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 Hits again
+2026-02-19 11:01:58,518 [INFO] signal_trader.listener: Channel message: congrats guys!!!
+2026-02-19 11:02:05,789 [INFO] signal_trader.parser: Parsed: type=NOISE | congrats guys!!!
+2026-02-19 11:02:05,789 [INFO] signal_trader.trade: NOISE — ignoring: congrats guys!!!
+2026-02-19 16:44:08,699 [INFO] signal_trader.listener: Channel message: Almost hit SL on this one for those took the trade. When it went back to entry price! 
+
+But now, this trade hits TP1-TP2
+2026-02-19 16:44:17,947 [INFO] signal_trader.parser: Parsed: type=NOISE | Almost hit SL on this one for those took the trade. When it went back to entry p
+2026-02-19 16:44:17,949 [INFO] signal_trader.trade: NOISE — ignoring: Almost hit SL on this one for those took the trade. When it went back to entry price! 
+
+But now, thi
+2026-02-19 17:12:28,827 [INFO] signal_trader.listener: Channel message: hits TP4
+2026-02-19 17:12:38,114 [INFO] signal_trader.parser: Parsed: type=TP_HIT | hits TP4
+2026-02-19 17:28:22,378 [INFO] signal_trader.listener: Channel message: TP5 Hit!!! 
+
+Congrats everyone!!!
+2026-02-19 17:28:33,488 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP5 Hit!!! 
+
+Congrats everyone!!!
+2026-02-19 17:43:42,448 [INFO] signal_trader.listener: Channel message: Ready for more?
+2026-02-19 17:43:50,763 [INFO] signal_trader.parser: Parsed: type=NOISE | Ready for more?
+2026-02-19 17:43:50,763 [INFO] signal_trader.trade: NOISE — ignoring: Ready for more?
+2026-02-19 17:45:23,132 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+2026-02-19 17:45:33,171 [INFO] signal_trader.parser: Parsed: type=NOISE | BUY NOW XAUUSD
+2026-02-19 17:45:33,171 [INFO] signal_trader.trade: NOISE — ignoring: BUY NOW XAUUSD
+2026-02-19 17:45:42,030 [INFO] signal_trader.listener: Channel EDIT (msg_id=5858): BUY NOW XAUUSD
+
+PRICE 5008
+2026-02-19 17:45:54,638 [INFO] signal_trader.parser: Parsed: type=NOISE | BUY NOW XAUUSD
+
+PRICE 5008
+2026-02-19 17:45:54,639 [INFO] signal_trader.trade: NOISE — ignoring: BUY NOW XAUUSD
+
+PRICE 5008
+2026-02-19 17:46:31,674 [INFO] signal_trader.listener: Channel EDIT (msg_id=5858): BUY NOW XAUUSD
+
+PRICE 5008 - 5004
+
+TP1 5010
+
+TP2 5015
+
+TP3 5020
+2026-02-19 17:46:41,747 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 5008 - 5004
+
+TP1 5010
+
+TP2 5015
+
+TP3 5020
+2026-02-19 17:46:41,804 [INFO] signal_trader.trade: Auto-calculated SL: 4994.00
+2026-02-19 17:46:42,207 [INFO] signal_trader.mt5: Position opened: ticket=404145526, price=0.00, lot=0.01
+2026-02-19 17:46:42,217 [INFO] signal_trader.trade: BUY MARKET XAUUSD @ 5008.00
+   SL: 4994.00 | TPs: 5010, 5015, 5020
+   Lot: 0.01 | Risk: $14.00
+2026-02-19 17:47:04,533 [INFO] signal_trader.listener: Channel EDIT (msg_id=5858): BUY NOW XAUUSD
+
+PRICE 5008 - 5004
+
+SL 4993
+
+TP1 5010
+
+TP2 5015
+
+TP3 5020
+2026-02-19 17:47:14,123 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 5008 - 5004
+
+SL 4993
+
+TP1 5010
+
+TP2 5015
+
+TP3 5020
+2026-02-19 17:47:14,446 [INFO] signal_trader.mt5: SL modified: ticket=404145526, new_sl=4993.00
+2026-02-19 17:47:14,448 [INFO] signal_trader.trade: Trade updated from edit — SL: 4994.00 -> 4993.00
+2026-02-19 17:48:14,535 [INFO] signal_trader.listener: Channel EDIT (msg_id=5858): BUY NOW XAUUSD
+
+PRICE 5008 - 5004
+
+SL 4993
+
+TP1 5010
+
+TP2 5015
+
+TP3 5020
+
+TP4 5025
+2026-02-19 17:48:24,050 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 5008 - 5004
+
+SL 4993
+
+TP1 5010
+
+TP2 5015
+
+TP3 5020
+
+TP4 50
+2026-02-19 17:48:24,055 [INFO] signal_trader.trade: Trade updated from edit — TPs: 4 levels
+2026-02-19 18:14:08,529 [INFO] signal_trader.trade: Position 404145526 closed externally (SL/TP hit or manual close)
+2026-02-19 19:21:47,143 [INFO] signal_trader.listener: Channel message: TP1 HIT
+2026-02-19 19:21:54,606 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 HIT
+2026-02-19 19:46:49,385 [INFO] signal_trader.listener: Channel message: TP2 3 HIT
+2026-02-19 19:47:01,415 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 3 HIT
+2026-02-19 19:53:42,773 [INFO] telethon.client.updates: Got difference for account updates
+2026-02-19 20:29:53,698 [INFO] signal_trader.listener: Channel EDIT (msg_id=5859): TP1 HIT!!!
+2026-02-19 20:29:59,755 [INFO] signal_trader.listener: Channel EDIT (msg_id=5860): TP2 3 HIT!!!
+2026-02-19 20:30:01,639 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 HIT!!!
+2026-02-19 20:30:12,353 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 3 HIT!!!
+2026-02-19 22:13:18,739 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-19 22:13:18,765 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-19 22:13:18,765 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-19 22:13:18,765 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-19 22:13:18,766 [INFO] signal_trader.mt5: Filling mode: 1 (FOK=True, IOC=False) -> using 0
+2026-02-19 22:13:18,766 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-19 22:13:18,766 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-19 22:13:18,767 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-19 22:13:18,767 [INFO] signal_trader.mt5: Spread: 42 points (0.42 price units)
+2026-02-19 22:13:18,767 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-19 22:13:18,767 [INFO] signal_trader.mt5: Current price: bid=4992.69, ask=4993.11
+2026-02-19 22:13:18,767 [INFO] signal_trader.mt5: Account: balance=133.32, equity=133.32, margin_free=133.32, leverage=1:500
+2026-02-19 22:13:18,767 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-19 22:13:18,768 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-19 22:13:18,779 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-19 22:13:18,784 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-19 22:13:18,873 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-19 22:13:19,531 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-19 22:13:19,531 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-20 00:58:45,830 [INFO] signal_trader.listener: Channel message: SOLID TRADES SINCE LAST NIGHT!!!!
+2026-02-20 00:58:54,020 [INFO] signal_trader.listener: Channel message: ARE YOU GUYS READY TO TAKE A RISK?
+2026-02-20 00:58:55,314 [INFO] signal_trader.parser: Parsed: type=NOISE | SOLID TRADES SINCE LAST NIGHT!!!!
+2026-02-20 00:58:55,314 [INFO] signal_trader.trade: NOISE — ignoring: SOLID TRADES SINCE LAST NIGHT!!!!
+2026-02-20 00:59:00,870 [INFO] signal_trader.parser: Parsed: type=NOISE | ARE YOU GUYS READY TO TAKE A RISK?
+2026-02-20 00:59:00,870 [INFO] signal_trader.trade: NOISE — ignoring: ARE YOU GUYS READY TO TAKE A RISK?
+2026-02-20 00:59:10,509 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+2026-02-20 00:59:19,087 [INFO] signal_trader.parser: Parsed: type=NOISE | BUY NOW XAUUSD
+2026-02-20 00:59:19,088 [INFO] signal_trader.trade: NOISE — ignoring: BUY NOW XAUUSD
+2026-02-20 01:00:02,786 [INFO] signal_trader.listener: Channel EDIT (msg_id=5863): BUY NOW XAUUSD
+
+PRICE 4995 - 4990
+2026-02-20 01:00:16,978 [INFO] signal_trader.parser: Parsed: type=NOISE | BUY NOW XAUUSD
+
+PRICE 4995 - 4990
+2026-02-20 01:00:16,978 [INFO] signal_trader.trade: NOISE — ignoring: BUY NOW XAUUSD
+
+PRICE 4995 - 4990
+2026-02-20 01:04:09,368 [INFO] signal_trader.listener: Channel EDIT (msg_id=5863): BUY NOW XAUUSD
+
+PRICE 4995 - 4990
+
+SL 4970
+
+TP1 4997
+
+TP2 5002
+
+TP3 5007
+
+TP4 5012
+2026-02-20 01:04:19,475 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 4995 - 4990
+
+SL 4970
+
+TP1 4997
+
+TP2 5002
+
+TP3 5007
+
+TP4 50
+2026-02-20 01:04:19,478 [WARNING] signal_trader.trade: Signal validation failed: SL too far: $25.00 > max $20.00
+2026-02-20 01:34:51,319 [INFO] signal_trader.listener: Channel message: SL HIT!!!!
+2026-02-20 01:35:01,336 [INFO] signal_trader.parser: Parsed: type=NOISE | SL HIT!!!!
+2026-02-20 01:35:01,336 [INFO] signal_trader.trade: NOISE — ignoring: SL HIT!!!!
+2026-02-20 01:35:03,516 [INFO] signal_trader.listener: Channel message: REcovery
+2026-02-20 01:35:12,144 [INFO] signal_trader.parser: Parsed: type=NOISE | REcovery
+2026-02-20 01:35:12,145 [INFO] signal_trader.trade: NOISE — ignoring: REcovery
+2026-02-20 01:35:43,206 [INFO] signal_trader.listener: Channel message: BOUGHT at 4973
+2026-02-20 01:35:51,303 [INFO] signal_trader.parser: Parsed: type=NOISE | BOUGHT at 4973
+2026-02-20 01:35:51,303 [INFO] signal_trader.trade: NOISE — ignoring: BOUGHT at 4973
+2026-02-20 01:36:48,560 [INFO] signal_trader.listener: Channel EDIT (msg_id=5866): BOUGHT at 4973
+
+TP1 4975
+
+TP2 4980
+
+TP3 4985
+
+TP4 4990
+
+TP5 4995
+2026-02-20 01:36:57,528 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BOUGHT at 4973
+
+TP1 4975
+
+TP2 4980
+
+TP3 4985
+
+TP4 4990
+
+TP5 4995
+2026-02-20 01:36:57,530 [INFO] signal_trader.trade: Auto-calculated SL: 4963.00
+2026-02-20 01:36:57,545 [ERROR] signal_trader.mt5: Order failed: retcode=10016, comment=Invalid stops
+2026-02-20 01:36:57,545 [ERROR] signal_trader.trade: Order failed: Invalid stops
+2026-02-20 01:37:00,574 [INFO] signal_trader.listener: Channel message: TP1 HIT!!!!
+2026-02-20 01:37:07,894 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 HIT!!!!
+2026-02-20 01:37:16,676 [INFO] signal_trader.listener: Channel message: TP2 HIT!!!!
+2026-02-20 01:37:23,253 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 HIT!!!!
+2026-02-20 01:40:56,132 [INFO] signal_trader.listener: Channel message: TP2 HIT!!!
+2026-02-20 01:41:03,868 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP2 HIT!!!
+2026-02-20 01:41:04,267 [INFO] signal_trader.listener: Channel message: Now TP3 HIT!!!
+2026-02-20 01:41:12,771 [INFO] signal_trader.parser: Parsed: type=TP_HIT | Now TP3 HIT!!!
+2026-02-20 01:41:14,356 [INFO] signal_trader.listener: Channel message: Edit your stop loss to Entry price!!!!
+2026-02-20 01:41:22,869 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | Edit your stop loss to Entry price!!!!
+2026-02-20 01:41:22,870 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-20 01:44:56,594 [INFO] signal_trader.listener: Channel message: TP4 HIT!!!!
+2026-02-20 01:45:04,580 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP4 HIT!!!!
+2026-02-20 01:45:05,310 [INFO] signal_trader.listener: Channel message: Edit your stoploss to 4980
+2026-02-20 01:45:13,033 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | Edit your stoploss to 4980
+2026-02-20 01:45:13,033 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-20 01:46:01,910 [INFO] signal_trader.listener: Channel message: If we hit TP5 … you can still hold and do trailinbg stop loss
+2026-02-20 01:46:10,115 [INFO] signal_trader.parser: Parsed: type=NOISE | If we hit TP5 … you can still hold and do trailinbg stop loss
+2026-02-20 01:46:10,115 [INFO] signal_trader.trade: NOISE — ignoring: If we hit TP5 … you can still hold and do trailinbg stop loss
+2026-02-20 01:48:38,340 [INFO] signal_trader.listener: Channel message: TP5 Hit!!!
+
+adiing TP’s
+
+TP6 4997
+
+TP7 5002
+2026-02-20 01:48:46,723 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP5 Hit!!!
+
+adiing TP’s
+
+TP6 4997
+
+TP7 5002
+2026-02-20 01:48:50,573 [INFO] signal_trader.listener: Channel message: edit your stop loss now to 49890
+2026-02-20 01:48:58,076 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | edit your stop loss now to 49890
+2026-02-20 01:48:58,092 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-20 01:49:05,650 [INFO] signal_trader.listener: Channel message: TP6 Hit!!!!
+2026-02-20 01:49:13,135 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP6 Hit!!!!
+2026-02-20 01:49:23,573 [INFO] signal_trader.listener: Channel EDIT (msg_id=5875): TP5 Hit!!!
+
+adiing TP’s
+
+TP6 4997
+
+TP7 5002
+
+TP8 5007
+2026-02-20 01:49:36,681 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP5 Hit!!!
+
+adiing TP’s
+
+TP6 4997
+
+TP7 5002
+
+TP8 5007
+2026-02-20 01:51:12,319 [INFO] signal_trader.listener: Channel EDIT (msg_id=5876): edit your stop loss now to 4980
+2026-02-20 01:51:19,464 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | edit your stop loss now to 4980
+2026-02-20 01:51:19,464 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-20 01:52:57,488 [INFO] signal_trader.listener: Channel message: TP7 HIT!!!!
+2026-02-20 01:53:04,882 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP7 HIT!!!!
+2026-02-20 01:54:10,998 [INFO] signal_trader.listener: Channel message: edit your stoploss to 4995
+2026-02-20 01:54:18,651 [INFO] signal_trader.parser: Parsed: type=SL_UPDATE | edit your stoploss to 4995
+2026-02-20 01:54:18,651 [INFO] signal_trader.trade: No active trade — ignoring SL update
+2026-02-20 01:55:05,540 [INFO] signal_trader.listener: Channel message: BBBAAAAAMMMMMMMM!!!!
+
+ALL TP HIT!!!!
+2026-02-20 01:55:15,856 [INFO] signal_trader.listener: Channel message: TP1 - TP8 !!!
+2026-02-20 01:55:16,714 [INFO] signal_trader.parser: Parsed: type=NOISE | BBBAAAAAMMMMMMMM!!!!
+
+ALL TP HIT!!!!
+2026-02-20 01:55:16,714 [INFO] signal_trader.trade: NOISE — ignoring: BBBAAAAAMMMMMMMM!!!!
+
+ALL TP HIT!!!!
+2026-02-20 01:55:29,803 [INFO] signal_trader.parser: Parsed: type=TP_HIT | TP1 - TP8 !!!
+2026-02-20 02:20:52,901 [INFO] signal_trader.listener: Channel EDIT (msg_id=5866): BOUGHT at 4973
+
+SL 4960
+
+TP1 4975
+
+TP2 4980
+
+TP3 4985
+
+TP4 4990
+
+TP5 4995
+2026-02-20 02:21:04,053 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BOUGHT at 4973
+
+SL 4960
+
+TP1 4975
+
+TP2 4980
+
+TP3 4985
+
+TP4 4990
+
+TP5 4995
+2026-02-20 02:21:04,056 [ERROR] signal_trader.mt5: Order failed: retcode=10016, comment=Invalid stops
+2026-02-20 02:21:04,056 [ERROR] signal_trader.trade: Order failed: Invalid stops
+2026-02-20 07:58:02,601 [INFO] signal_trader.listener: Channel message: solid trades this morning
+2026-02-20 07:58:09,438 [INFO] signal_trader.parser: Parsed: type=NOISE | solid trades this morning
+2026-02-20 07:58:09,439 [INFO] signal_trader.trade: NOISE — ignoring: solid trades this morning
+2026-02-20 08:11:14,655 [INFO] signal_trader: Config loaded — pair=XAUUSD, lot=0.01, dry_run=False, channel=TRUE NORTH - VIP
+2026-02-20 08:11:14,743 [INFO] signal_trader.mt5: MT5 connected — build=5572, company=MetaQuotes Ltd.
+2026-02-20 08:11:14,745 [INFO] signal_trader.mt5: === STARTUP HEALTH CHECK ===
+2026-02-20 08:11:14,745 [INFO] signal_trader.mt5: Symbol: XAUUSD.. (visible=True, trade_mode=4)
+2026-02-20 08:11:14,745 [INFO] signal_trader.mt5: Filling mode: 1 (FOK=True, IOC=False) -> using 0
+2026-02-20 08:11:14,745 [INFO] signal_trader.mt5: Volume: min=0.01, max=10.00, step=0.01 (config lot=0.01)
+2026-02-20 08:11:14,745 [INFO] signal_trader.mt5: Stops level: 5 points (min SL/TP distance from price)
+2026-02-20 08:11:14,747 [INFO] signal_trader.mt5: Freeze level: 5 points (can't modify when price within this)
+2026-02-20 08:11:14,747 [INFO] signal_trader.mt5: Spread: 42 points (0.42 price units)
+2026-02-20 08:11:14,747 [INFO] signal_trader.mt5: Contract size: 100, Tick size: 0.01000, Tick value: 1.00
+2026-02-20 08:11:14,747 [INFO] signal_trader.mt5: Current price: bid=4998.53, ask=4998.95
+2026-02-20 08:11:14,747 [INFO] signal_trader.mt5: Account: balance=128.56, equity=128.56, margin_free=128.56, leverage=1:500
+2026-02-20 08:11:14,747 [INFO] signal_trader.mt5: Account type: Hedging
+2026-02-20 08:11:14,747 [INFO] signal_trader.mt5: === END HEALTH CHECK ===
+2026-02-20 08:11:14,760 [INFO] signal_trader.trade: Reconcile: clean slate — no state, no positions
+2026-02-20 08:11:14,765 [INFO] telethon.network.mtprotosender: Connecting to 91.108.56.173:443/TcpFull...
+2026-02-20 08:11:14,854 [INFO] telethon.network.mtprotosender: Connection to 91.108.56.173:443/TcpFull complete!
+2026-02-20 08:11:15,450 [INFO] signal_trader.listener: Telethon connected — listening to channel TRUE NORTH - VIP (ID: -1002079334288)
+2026-02-20 08:11:15,451 [INFO] signal_trader: Signal Trader running. Press Ctrl+C to stop.
+2026-02-20 10:08:16,481 [INFO] signal_trader.listener: Channel message: ready to risk?
+2026-02-20 10:08:23,768 [INFO] signal_trader.parser: Parsed: type=NOISE | ready to risk?
+2026-02-20 10:08:23,769 [INFO] signal_trader.trade: NOISE — ignoring: ready to risk?
+2026-02-20 10:10:07,708 [INFO] signal_trader.listener: Channel message: BUY NOW XAUUSD
+
+PRICE 5004
+2026-02-20 10:10:16,437 [INFO] signal_trader.parser: Parsed: type=NOISE | BUY NOW XAUUSD
+
+PRICE 5004
+2026-02-20 10:10:16,437 [INFO] signal_trader.trade: NOISE — ignoring: BUY NOW XAUUSD
+
+PRICE 5004
+2026-02-20 10:11:05,976 [INFO] signal_trader.listener: Channel EDIT (msg_id=5886): BUY NOW XAUUSD
+
+PRICE 5004
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:11:13,888 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 5004
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:11:13,892 [INFO] signal_trader.trade: Auto-calculated SL: 4994.00
+2026-02-20 10:11:14,295 [INFO] signal_trader.mt5: Fetched real fill price from position: 5003.58
+2026-02-20 10:11:14,295 [INFO] signal_trader.mt5: Position opened: ticket=404415344, price=5003.58, lot=0.01
+2026-02-20 10:11:14,298 [INFO] signal_trader.trade: BUY MARKET XAUUSD @ 5003.58
+   SL: 4994.00 | Fixed TP: 5008.58
+   Lot: 0.01 | Risk: $10.00
+2026-02-20 10:11:44,186 [INFO] signal_trader.listener: Channel EDIT (msg_id=5886): BUY NOW XAUUSD
+
+PRICE 5004 - 5000
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:11:53,217 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 5004 - 5000
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:12:10,076 [INFO] signal_trader.listener: Channel EDIT (msg_id=5886): BUY NOW XAUUSD
+
+PRICE 5004 - 5000
+
+SL 4993
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:12:17,213 [INFO] signal_trader.listener: Channel EDIT (msg_id=5886): BUY NOW XAUUSD
+
+PRICE 5004 - 5000
+
+SL 4992
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:12:18,685 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 5004 - 5000
+
+SL 4993
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:12:19,003 [INFO] signal_trader.mt5: SL modified: ticket=404415344, new_sl=4993.00
+2026-02-20 10:12:19,006 [INFO] signal_trader.trade: Trade updated from edit — SL: 4994.00 -> 4993.00
+2026-02-20 10:12:25,429 [INFO] signal_trader.parser: Parsed: type=NEW_SIGNAL | BUY NOW XAUUSD
+
+PRICE 5004 - 5000
+
+SL 4992
+
+TP1 5006
+
+TP2 5011
+
+TP3 5016
+2026-02-20 10:12:25,749 [INFO] signal_trader.mt5: SL modified: ticket=404415344, new_sl=4992.00
+2026-02-20 10:12:25,751 [INFO] signal_trader.trade: Trade updated from edit — SL: 4993.00 -> 4992.00

@@ -1,0 +1,28 @@
+{
+  "channel": {
+    "id": -1002079334288,
+    "name": "TRUE NORTH - VIP"
+  },
+  "trading": {
+    "pair": "XAUUSD",
+    "mt5_symbol": "XAUUSD..",
+    "lot_size": 0.01,
+    "max_lot": 0.01,
+    "enabled": true,
+    "dry_run": false
+  },
+  "safety": {
+    "max_open_trades": 1,
+    "stale_signal_seconds": 60,
+    "position_poll_interval": 30,
+    "max_price_deviation": 10.0,
+    "max_sl_distance": 10.0,
+    "default_sl_distance": 10.0,
+    "default_trail_distance": 5.0,
+    "fixed_tp_distance": 5.0
+  },
+  "notifications": {
+    "method": "saved_messages",
+    "enabled": true
+  }
+}

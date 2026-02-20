@@ -1,0 +1,4 @@
+telethon==1.37.0
+MetaTrader5==5.0.4200
+anthropic==0.49.0
+python-dotenv==1.0.1
