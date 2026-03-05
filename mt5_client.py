@@ -87,7 +87,7 @@ class MT5Client:
         # Validate config against broker
         if self.config.lot_size < sym.volume_min:
             log.error("Config lot_size (%.2f) < broker minimum (%.2f)!", self.config.lot_size, sym.volume_min)
-        if self.config.lot_size % sym.volume_step != 0:
+        if round(self.config.lot_size % sym.volume_step, 8) != 0:
             log.warning("Config lot_size (%.2f) not aligned with volume_step (%.2f)",
                         self.config.lot_size, sym.volume_step)
 
@@ -144,8 +144,13 @@ class MT5Client:
 
     # ── Sync order methods ──────────────────────────────────────
 
-    def open_position(self, direction: Direction, lot: float, sl: float, tp_distance: float = 0.0) -> TradeResult:
-        """Open a market order. tp_distance: fixed TP distance from tick price (0=disabled)."""
+    def open_position(self, direction: Direction, lot: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
+        """Open a market order.
+
+        Args:
+            tp_distance: Fixed TP distance from tick price (0=disabled).
+            tp_price: Absolute TP price (0=disabled). Takes priority over tp_distance.
+        """
         if self._check_kill_switch():
             return TradeResult(success=False, error_message="Kill switch active")
 
@@ -158,8 +163,9 @@ class MT5Client:
         lot = self._enforce_lot_cap(lot)
 
         if self.config.dry_run:
-            log.info("[DRY-RUN] Would open %s %.2f %s SL=%.2f",
-                     direction.value, lot, self.config.mt5_symbol, sl)
+            tp_info = f" TP={tp_price:.2f}" if tp_price > 0 else ""
+            log.info("[DRY-RUN] Would open %s %.2f %s SL=%.2f%s",
+                     direction.value, lot, self.config.mt5_symbol, sl, tp_info)
             return TradeResult(success=True, ticket=0, price=0.0)
 
         order_type = mt5.ORDER_TYPE_BUY if direction == Direction.BUY else mt5.ORDER_TYPE_SELL
@@ -169,9 +175,11 @@ class MT5Client:
 
         price = tick.ask if direction == Direction.BUY else tick.bid
 
-        # Calculate TP from actual tick price (not signal price) to avoid invalid stops
+        # Determine TP: absolute price takes priority, then distance-based
         tp = 0.0
-        if tp_distance > 0:
+        if tp_price > 0:
+            tp = tp_price
+        elif tp_distance > 0:
             tp = price + tp_distance if direction == Direction.BUY else price - tp_distance
 
         request = {
@@ -249,18 +257,65 @@ class MT5Client:
         log.info("SL modified: ticket=%d, new_sl=%.2f", ticket, new_sl)
         return TradeResult(success=True, ticket=ticket)
 
-    def close_position(self, ticket: int) -> TradeResult:
-        """Close a position at market."""
+    def modify_tp(self, ticket: int, new_tp: float) -> TradeResult:
+        """Modify the take profit of an open position."""
+        if self._check_kill_switch():
+            return TradeResult(success=False, error_message="Kill switch active")
+
         if not self.is_connected():
             return TradeResult(success=False, error_message="MT5 not connected")
 
         if self.config.dry_run:
-            log.info("[DRY-RUN] Would close ticket=%d", ticket)
+            log.info("[DRY-RUN] Would modify ticket=%d TP=%.2f", ticket, new_tp)
+            return TradeResult(success=True, ticket=ticket)
+
+        # Get current position to preserve SL
+        position = self._get_position_by_ticket(ticket)
+        if position is None:
+            return TradeResult(success=False, error_message=f"Position {ticket} not found")
+
+        request = {
+            "action": mt5.TRADE_ACTION_SLTP,
+            "symbol": self.config.mt5_symbol,
+            "position": ticket,
+            "sl": position.sl,
+            "tp": new_tp,
+        }
+
+        result = mt5.order_send(request)
+        if result is None:
+            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
+
+        if result.retcode != mt5.TRADE_RETCODE_DONE:
+            log.error("TP modify failed: retcode=%d, comment=%s", result.retcode, result.comment)
+            return TradeResult(success=False, error_code=result.retcode, error_message=result.comment)
+
+        log.info("TP modified: ticket=%d, new_tp=%.2f", ticket, new_tp)
+        return TradeResult(success=True, ticket=ticket)
+
+    def close_position(self, ticket: int, volume: float = 0.0) -> TradeResult:
+        """Close a position (fully or partially) at market.
+
+        Args:
+            ticket: Position ticket to close.
+            volume: Lot size to close. If 0 or >= position volume, close entire position.
+        """
+        if not self.is_connected():
+            return TradeResult(success=False, error_message="MT5 not connected")
+
+        if self.config.dry_run:
+            vol_str = f" vol={volume:.2f}" if volume > 0 else ""
+            log.info("[DRY-RUN] Would close ticket=%d%s", ticket, vol_str)
             return TradeResult(success=True, ticket=ticket)
 
         position = self._get_position_by_ticket(ticket)
         if position is None:
             return TradeResult(success=False, error_message=f"Position {ticket} not found")
+
+        # Determine close volume: partial or full
+        close_volume = position.volume
+        if 0 < volume < position.volume:
+            close_volume = volume
 
         # Reverse the direction to close
         close_type = mt5.ORDER_TYPE_SELL if position.type == mt5.ORDER_TYPE_BUY else mt5.ORDER_TYPE_BUY
@@ -273,7 +328,7 @@ class MT5Client:
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
             "symbol": self.config.mt5_symbol,
-            "volume": position.volume,
+            "volume": close_volume,
             "type": close_type,
             "position": ticket,
             "price": price,
@@ -292,10 +347,12 @@ class MT5Client:
             log.error("Close failed: retcode=%d, comment=%s", result.retcode, result.comment)
             return TradeResult(success=False, error_code=result.retcode, error_message=result.comment)
 
-        log.info("Position closed: ticket=%d, price=%.2f", ticket, result.price)
+        partial = close_volume < position.volume
+        log.info("Position %s: ticket=%d, vol=%.2f, price=%.2f",
+                 "partial-closed" if partial else "closed", ticket, close_volume, result.price)
         return TradeResult(success=True, ticket=ticket, price=result.price)
 
-    def open_limit_order(self, direction: Direction, lot: float, price: float, sl: float, tp_distance: float = 0.0) -> TradeResult:
+    def open_limit_order(self, direction: Direction, lot: float, price: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
         """Place a pending limit order at a specific price. Returns TradeResult."""
         if self._check_kill_switch():
             return TradeResult(success=False, error_message="Kill switch active")
@@ -309,8 +366,9 @@ class MT5Client:
         lot = self._enforce_lot_cap(lot)
 
         if self.config.dry_run:
-            log.info("[DRY-RUN] Would place %s LIMIT %.2f %s @ %.2f SL=%.2f",
-                     direction.value, lot, self.config.mt5_symbol, price, sl)
+            tp_info = f" TP={tp_price:.2f}" if tp_price > 0 else ""
+            log.info("[DRY-RUN] Would place %s LIMIT %.2f %s @ %.2f SL=%.2f%s",
+                     direction.value, lot, self.config.mt5_symbol, price, sl, tp_info)
             return TradeResult(success=True, ticket=0, price=price)
 
         order_type = mt5.ORDER_TYPE_BUY_LIMIT if direction == Direction.BUY else mt5.ORDER_TYPE_SELL_LIMIT
@@ -328,9 +386,13 @@ class MT5Client:
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": self._get_filling_mode(),
         }
-        # Calculate TP from limit price
-        if tp_distance > 0:
+        # Determine TP: absolute price takes priority, then distance-based
+        tp = 0.0
+        if tp_price > 0:
+            tp = tp_price
+        elif tp_distance > 0:
             tp = price + tp_distance if direction == Direction.BUY else price - tp_distance
+        if tp > 0:
             request["tp"] = tp
 
         result = mt5.order_send(request)
@@ -413,25 +475,29 @@ class MT5Client:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(self._executor, self.connect)
 
-    async def open_position_async(self, direction: Direction, lot: float, sl: float, tp_distance: float = 0.0) -> TradeResult:
+    async def open_position_async(self, direction: Direction, lot: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.open_position, direction, lot, sl, tp_distance)
+        return await loop.run_in_executor(self._executor, self.open_position, direction, lot, sl, tp_distance, tp_price)
 
     async def modify_sl_async(self, ticket: int, new_sl: float) -> TradeResult:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(self._executor, self.modify_sl, ticket, new_sl)
 
-    async def close_position_async(self, ticket: int) -> TradeResult:
+    async def modify_tp_async(self, ticket: int, new_tp: float) -> TradeResult:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.close_position, ticket)
+        return await loop.run_in_executor(self._executor, self.modify_tp, ticket, new_tp)
+
+    async def close_position_async(self, ticket: int, volume: float = 0.0) -> TradeResult:
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(self._executor, self.close_position, ticket, volume)
 
     async def get_open_positions_async(self, symbol: str = None) -> list:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(self._executor, self.get_open_positions, symbol)
 
-    async def open_limit_order_async(self, direction: Direction, lot: float, price: float, sl: float, tp_distance: float = 0.0) -> TradeResult:
+    async def open_limit_order_async(self, direction: Direction, lot: float, price: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.open_limit_order, direction, lot, price, sl, tp_distance)
+        return await loop.run_in_executor(self._executor, self.open_limit_order, direction, lot, price, sl, tp_distance, tp_price)
 
     async def cancel_order_async(self, order_ticket: int) -> TradeResult:
         loop = asyncio.get_event_loop()

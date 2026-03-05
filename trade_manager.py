@@ -15,14 +15,41 @@ log = logging.getLogger("signal_trader.trade")
 KILL_SWITCH_FILE = "STOP_TRADING"
 
 
+class PositionCounter:
+    """Enforces a global max positions limit across all channels."""
+
+    def __init__(self, max_positions: int):
+        self._max = max_positions
+        self._managers: list["TradeManager"] = []
+
+    def register(self, manager: "TradeManager") -> None:
+        self._managers.append(manager)
+
+    def active_count(self) -> int:
+        return sum(1 for m in self._managers if m.active_trade is not None)
+
+    def can_open(self) -> bool:
+        return self.active_count() < self._max
+
+
 class TradeManager:
-    def __init__(self, config: Config, mt5: MT5Client, base_dir: str):
+    def __init__(self, config: Config, mt5: MT5Client, base_dir: str,
+                 channel_name: str = "", position_counter: "PositionCounter" = None,
+                 state_file: str = "state.json"):
         self.config = config
         self.mt5 = mt5
         self.base_dir = base_dir
-        self.state_path = os.path.join(base_dir, "state.json")
+        self.channel_name = channel_name
+        self.position_counter = position_counter
+        self.state_path = os.path.join(base_dir, state_file)
         self.active_trade: Optional[TradeState] = None
         self._load_state()
+
+    def _notify(self, msg: str) -> str:
+        """Prefix notification with channel name."""
+        if self.channel_name:
+            return f"[{self.channel_name}] {msg}"
+        return msg
 
     # ── Signal handling ─────────────────────────────────────────
 
@@ -39,22 +66,19 @@ class TradeManager:
             log.info("NOISE — ignoring: %s", signal.raw_message[:100])
             return None
 
+        result = None
         if signal.type == SignalType.NEW_SIGNAL:
-            return await self._handle_new_signal(signal)
+            result = await self._handle_new_signal(signal)
+        elif signal.type == SignalType.SL_UPDATE:
+            result = await self._handle_sl_update(signal)
+        elif signal.type == SignalType.TP_HIT:
+            result = await self._handle_tp_hit(signal)
+        elif signal.type == SignalType.TRAIL_STOP:
+            result = await self._handle_trail_stop(signal)
+        elif signal.type == SignalType.CLOSE_SIGNAL:
+            result = await self._handle_close(signal)
 
-        if signal.type == SignalType.SL_UPDATE:
-            return await self._handle_sl_update(signal)
-
-        if signal.type == SignalType.TP_HIT:
-            return self._handle_tp_hit(signal)
-
-        if signal.type == SignalType.TRAIL_STOP:
-            return await self._handle_trail_stop(signal)
-
-        if signal.type == SignalType.CLOSE_SIGNAL:
-            return await self._handle_close(signal)
-
-        return None
+        return self._notify(result) if result else None
 
     # ── NEW_SIGNAL ──────────────────────────────────────────────
 
@@ -72,6 +96,13 @@ class TradeManager:
                      len(positions), len(pending))
             return None
 
+        # Global position cap across all channels
+        if self.position_counter and not self.position_counter.can_open():
+            log.info("Global position cap reached (%d/%d) — ignoring signal from [%s]",
+                     self.position_counter.active_count(), self.config.max_positions,
+                     self.channel_name)
+            return None
+
         # Auto-calculate SL if missing
         if signal.sl is None or signal.sl <= 0:
             signal.sl = self._auto_calculate_sl(signal)
@@ -80,15 +111,9 @@ class TradeManager:
                 return "Signal rejected: No SL and could not auto-calculate"
             log.info("Auto-calculated SL: %.2f", signal.sl)
 
-        # Clamp SL to max distance (don't reject, just tighten)
+        # Use the signal provider's SL as-is (no clamping)
         sl_distance = abs(signal.price - signal.sl)
-        if sl_distance > self.config.max_sl_distance:
-            if signal.direction == Direction.BUY:
-                signal.sl = signal.price - self.config.max_sl_distance
-            else:
-                signal.sl = signal.price + self.config.max_sl_distance
-            log.info("SL clamped: $%.2f too far, using $%.2f distance → SL %.2f",
-                     sl_distance, self.config.max_sl_distance, signal.sl)
+        log.info("Signal SL: %.2f ($%.2f from entry)", signal.sl, sl_distance)
 
         # Validate parsed fields
         error = self._validate_new_signal(signal)
@@ -96,50 +121,174 @@ class TradeManager:
             log.warning("Signal validation failed: %s", error)
             return f"Signal rejected: {error}"
 
-        is_limit = signal.execution == OrderExecution.LIMIT
-        tp_distance = self.config.fixed_tp_distance  # 0 = disabled
+        # Price deviation check — reject if market has moved too far from signal price
+        current_price = await self.mt5.get_current_price_async()
+        if current_price is not None:
+            deviation = abs(current_price - signal.price)
+            if deviation > self.config.max_price_deviation:
+                msg = f"Signal rejected: price deviation ${deviation:.2f} > ${self.config.max_price_deviation:.2f} (signal={signal.price:.2f}, market={current_price:.2f})"
+                log.warning(msg)
+                return msg
 
-        # Execute: market or limit
-        if is_limit:
+        is_limit = signal.execution == OrderExecution.LIMIT
+        tp_distance = self.config.fixed_tp_distance  # 0 = use signal TPs
+
+        # Decide: multi-position (separate TP per position) or single position
+        use_multi = (
+            tp_distance <= 0
+            and signal.tp
+            and self.config.close_lot_per_tp > 0
+        )
+
+        pending_order_tickets = []
+
+        if use_multi:
+            tickets, entry_price, total_lot = await self._open_multi_positions(signal, is_limit=is_limit)
+            if is_limit:
+                sub_tickets = []
+                pending_order_tickets = tickets
+            else:
+                sub_tickets = tickets
+        elif is_limit:
             result = await self.mt5.open_limit_order_async(
                 signal.direction, self.config.lot_size, signal.price, signal.sl, tp_distance)
+            if not result.success:
+                return f"Order failed: {result.error_message}"
+            sub_tickets = []
+            pending_order_tickets = [result.ticket]
+            entry_price = result.price or signal.price
+            total_lot = self.config.lot_size
         else:
+            # Single market position with fixed TP
             result = await self.mt5.open_position_async(
                 signal.direction, self.config.lot_size, signal.sl, tp_distance)
+            if not result.success:
+                return f"Order failed: {result.error_message}"
+            sub_tickets = [result.ticket]
+            entry_price = result.price or signal.price
+            total_lot = self.config.lot_size
 
-        if not result.success:
-            msg = f"Order failed: {result.error_message}"
-            log.error(msg)
-            return msg
+        if not sub_tickets and not pending_order_tickets:
+            return "Order failed: all positions failed to open"
 
         # Save state
         self.active_trade = TradeState(
-            ticket=result.ticket,
+            ticket=sub_tickets[0] if sub_tickets else 0,
             direction=signal.direction,
             pair=signal.pair,
-            entry_price=result.price or signal.price,
+            entry_price=entry_price,
             signal_price=signal.price,
             current_sl=signal.sl,
-            tp_levels=signal.tp,
-            lot_size=self.config.lot_size,
+            tp_levels=signal.tp or [],
+            lot_size=round(total_lot, 2),
             opened_at=time.time(),
             last_updated=time.time(),
-            is_pending=is_limit,
-            order_ticket=result.ticket if is_limit else None,
+            is_pending=bool(pending_order_tickets),
+            order_ticket=pending_order_tickets[0] if pending_order_tickets else None,
+            remaining_lot=round(total_lot, 2),
+            sub_tickets=sub_tickets,
+            pending_order_tickets=pending_order_tickets,
         )
         self._save_state()
 
+        # Build notification
         order_type = "LIMIT" if is_limit else "MARKET"
-        actual_tp = (result.price or signal.price) + tp_distance if signal.direction == Direction.BUY else (result.price or signal.price) - tp_distance
-        tp_str = f"Fixed TP: {actual_tp:.2f}" if tp_distance > 0 else f"TPs: {', '.join(f'{t:.0f}' for t in signal.tp)}"
+        if use_multi:
+            num_orders = len(sub_tickets) + len(pending_order_tickets)
+            tp_str = " | ".join(f"TP{i+1}: {signal.tp[i]:.2f}" for i in range(min(num_orders, len(signal.tp))))
+            kind = "orders" if is_limit else "positions"
+            lot_str = f"{num_orders} {kind} x {self.config.close_lot_per_tp} lot = {total_lot:.2f}"
+        elif tp_distance > 0:
+            actual_tp = entry_price + tp_distance if signal.direction == Direction.BUY else entry_price - tp_distance
+            tp_str = f"Fixed TP: {actual_tp:.2f}"
+            lot_str = f"Lot: {total_lot}"
+        else:
+            tp_str = f"TPs: {', '.join(f'{t:.0f}' for t in signal.tp)}"
+            lot_str = f"Lot: {total_lot}"
+
         msg = (
             f"{'[DRY-RUN] ' if self.config.dry_run else ''}"
-            f"{signal.direction.value} {order_type} {signal.pair} @ {result.price or signal.price:.2f}\n"
+            f"{signal.direction.value} {order_type} {signal.pair} @ {entry_price:.2f}\n"
             f"   SL: {signal.sl:.2f} | {tp_str}\n"
-            f"   Lot: {self.config.lot_size} | Risk: ${abs(signal.price - signal.sl) * self.config.lot_size * 100:.2f}"
+            f"   {lot_str}"
         )
         log.info(msg)
         return msg
+
+    async def _open_multi_positions(self, signal: ParsedSignal, is_limit: bool = False) -> tuple[list[int], float, float]:
+        """Open N separate positions/limit orders, each with its own TP. Returns (tickets, entry_price, total_lot)."""
+        max_splits = max(1, int(round(self.config.lot_size / self.config.close_lot_per_tp)))
+
+        # Get current market price for TP validation (ask for BUY, bid for SELL)
+        current_price = await self.mt5.get_current_price_async()
+        ref_price = current_price if current_price else signal.price
+
+        # Filter out TPs on the wrong side of current market price
+        valid_tps = []
+        for tp in signal.tp:
+            if signal.direction == Direction.BUY and tp > ref_price:
+                valid_tps.append(tp)
+            elif signal.direction == Direction.SELL and tp < ref_price:
+                valid_tps.append(tp)
+            else:
+                log.warning("Invalid TP %.2f (wrong side of market price %.2f for %s) — will use default",
+                            tp, ref_price, signal.direction.value)
+
+        # Pad with default TPs ($2, $5, $8 from current price) if not enough valid ones
+        default_distances = [2.0, 5.0, 8.0]
+        if len(valid_tps) < max_splits:
+            for d in default_distances:
+                if len(valid_tps) >= max_splits:
+                    break
+                if signal.direction == Direction.BUY:
+                    default_tp = ref_price + d
+                else:
+                    default_tp = ref_price - d
+                # Don't duplicate existing TPs
+                if default_tp not in valid_tps:
+                    valid_tps.append(default_tp)
+                    log.info("Using default TP: %.2f ($%.0f from entry)", default_tp, d)
+
+            # Sort: ascending for BUY (closest first), descending for SELL
+            valid_tps.sort(reverse=(signal.direction == Direction.SELL))
+        num_positions = min(len(valid_tps), max_splits)
+
+        sub_tickets = []
+        entry_price = None
+        total_lot = 0.0
+        remaining = self.config.lot_size
+
+        for i in range(num_positions):
+            # Last position gets the remainder (handles rounding)
+            if i < num_positions - 1:
+                lot = self.config.close_lot_per_tp
+            else:
+                lot = round(remaining, 2)
+
+            tp = valid_tps[i]
+
+            if is_limit:
+                result = await self.mt5.open_limit_order_async(
+                    signal.direction, lot, signal.price, signal.sl, tp_price=tp)
+            else:
+                result = await self.mt5.open_position_async(
+                    signal.direction, lot, signal.sl, tp_price=tp)
+
+            kind = "limit order" if is_limit else "position"
+            if result.success:
+                sub_tickets.append(result.ticket)
+                total_lot += lot
+                remaining -= lot
+                if entry_price is None:
+                    entry_price = result.price or signal.price
+                log.info("Sub-%s %d/%d opened: ticket=%s, lot=%.2f, TP=%.2f",
+                         kind, i + 1, num_positions, result.ticket, lot, tp)
+            else:
+                # Failed — lot carries forward to next position
+                log.warning("Sub-%s %d/%d failed: %s — lot carries forward",
+                            kind, i + 1, num_positions, result.error_message)
+
+        return sub_tickets, entry_price or signal.price, total_lot
 
     async def _maybe_update_from_edit(self, signal: ParsedSignal) -> Optional[str]:
         """When we already have a trade and get a NEW_SIGNAL edit, update SL/TPs if better."""
@@ -152,15 +301,35 @@ class TradeManager:
 
         updates = []
 
-        # Update SL if signal has an explicit one that differs from ours
+        # Update SL if signal has an explicit one that differs from ours — always follow provider
         if signal.sl is not None and signal.sl > 0 and signal.sl != trade.current_sl:
-            result = await self.mt5.modify_sl_async(trade.ticket, signal.sl)
-            if result.success:
-                old_sl = trade.current_sl
-                trade.current_sl = signal.sl
-                updates.append(f"SL: {old_sl:.2f} -> {signal.sl:.2f}")
-            else:
-                log.error("SL update from edit failed: %s", result.error_message)
+            # After TP hits, don't accept SL that's worse than current (protect breakeven/trailing)
+            if trade.tp_hits_count > 0:
+                if trade.direction == Direction.BUY and signal.sl < trade.current_sl:
+                    log.info("Rejecting SL edit %.2f — worse than post-TP SL %.2f (BUY)",
+                             signal.sl, trade.current_sl)
+                    signal.sl = None
+                elif trade.direction == Direction.SELL and signal.sl > trade.current_sl:
+                    log.info("Rejecting SL edit %.2f — worse than post-TP SL %.2f (SELL)",
+                             signal.sl, trade.current_sl)
+                    signal.sl = None
+
+            if signal.sl is not None and signal.sl > 0 and signal.sl != trade.current_sl:
+                # Cap SL distance to max_sl_distance
+                sl_distance = abs(trade.entry_price - signal.sl)
+                if sl_distance > self.config.max_sl_distance:
+                    if trade.direction == Direction.BUY:
+                        signal.sl = trade.entry_price - self.config.max_sl_distance
+                    else:
+                        signal.sl = trade.entry_price + self.config.max_sl_distance
+                    log.warning("Provider SL too wide ($%.2f) — clamped to $%.2f (SL=%.2f)",
+                                sl_distance, self.config.max_sl_distance, signal.sl)
+
+                ok = await self._modify_sl_all(signal.sl)
+                if ok:
+                    old_sl = trade.current_sl
+                    trade.current_sl = signal.sl
+                    updates.append(f"SL: {old_sl:.2f} -> {signal.sl:.2f}")
 
         # Update TP levels if signal has more
         if signal.tp and len(signal.tp) > len(trade.tp_levels):
@@ -186,7 +355,7 @@ class TradeManager:
         - BUY: SL = (price_low or price) - default_sl_distance
         - SELL: SL = (price or price_high) + default_sl_distance
 
-        For "PRICE 5025 - 5020" BUY → SL = 5020 - 10 = 5010
+        For "PRICE 5025 - 5020" BUY -> SL = 5020 - 10 = 5010
         """
         if signal.direction is None or signal.price is None:
             return None
@@ -221,8 +390,8 @@ class TradeManager:
         if signal.sl is None or signal.sl <= 0:
             return "Invalid SL"
 
-        # At least 1 TP
-        if not signal.tp:
+        # At least 1 TP required (fixed_tp_distance can override if set)
+        if not signal.tp and self.config.fixed_tp_distance <= 0:
             return "No TP levels"
 
         # Rule 5: SL direction
@@ -236,18 +405,12 @@ class TradeManager:
         if age > self.config.stale_signal_seconds:
             return f"Signal too old ({age:.0f}s > {self.config.stale_signal_seconds}s)"
 
-        # Rule 8: Price deviation from current market
-        # Note: We do async price check before calling this, but as a sync fallback
-        # the mt5 price check happens in open_position itself
-
-        # Rule 9: Max SL distance — now handled by clamping in _handle_new_signal
-
         return None
 
     # ── SL_UPDATE ───────────────────────────────────────────────
 
     async def _handle_sl_update(self, signal: ParsedSignal) -> Optional[str]:
-        """Modify the stop loss of the active trade."""
+        """Modify the stop loss of the active trade (all sub-positions)."""
         if self.active_trade is None:
             log.info("No active trade — ignoring SL update")
             return None
@@ -277,10 +440,10 @@ class TradeManager:
                      new_sl, self.active_trade.current_sl)
             return None
 
-        result = await self.mt5.modify_sl_async(self.active_trade.ticket, new_sl)
+        ok = await self._modify_sl_all(new_sl)
 
-        if not result.success:
-            msg = f"SL modify failed: {result.error_message}"
+        if not ok:
+            msg = "SL modify failed on one or more positions"
             log.error(msg)
             return msg
 
@@ -390,10 +553,10 @@ class TradeManager:
         # Round to 2 decimals for gold
         new_sl = round(new_sl, 2)
 
-        result = await self.mt5.modify_sl_async(trade.ticket, new_sl)
+        ok = await self._modify_sl_all(new_sl)
 
-        if not result.success:
-            log.error("Trailing SL modify failed: %s", result.error_message)
+        if not ok:
+            log.error("Trailing SL modify failed on one or more positions")
             return None
 
         old_sl = trade.current_sl
@@ -411,24 +574,31 @@ class TradeManager:
 
     # ── TP_HIT ──────────────────────────────────────────────────
 
-    def _handle_tp_hit(self, signal: ParsedSignal) -> Optional[str]:
-        """Log a TP hit (informational only at 0.01 lot)."""
+    async def _handle_tp_hit(self, signal: ParsedSignal) -> Optional[str]:
+        """Handle a TP hit signal — sync with MT5 and trail SL on remaining positions."""
         if self.active_trade is None:
             return None
 
-        tp_num = signal.tp_number or 0
+        # Sync sub-positions with MT5 (the TP hit may have already been detected by poll)
+        result = await self._sync_sub_positions()
+
+        tp_num = signal.tp_number or self.active_trade.tp_hits_count if self.active_trade else 0
         tp_price = None
-        if 1 <= tp_num <= len(self.active_trade.tp_levels):
+        if self.active_trade and 1 <= tp_num <= len(self.active_trade.tp_levels):
             tp_price = self.active_trade.tp_levels[tp_num - 1]
 
-        msg = f"TP{tp_num} hit!{f' ({tp_price:.2f})' if tp_price else ''}"
+        if result:
+            return result
+
+        # If sync found nothing new, just log the signal
+        msg = f"TP{tp_num} signal received{f' ({tp_price:.2f})' if tp_price else ''} — already handled"
         log.info(msg)
         return msg
 
     # ── CLOSE_SIGNAL ────────────────────────────────────────────
 
     async def _handle_close(self, signal: ParsedSignal) -> Optional[str]:
-        """Close the active trade or cancel pending order."""
+        """Close all sub-positions or cancel pending order."""
         if self.active_trade is None:
             log.info("No active trade — ignoring close signal")
             return None
@@ -436,15 +606,15 @@ class TradeManager:
         # If it's a pending order, cancel it instead of closing
         if self.active_trade.is_pending and self.active_trade.order_ticket:
             result = await self.mt5.cancel_order_async(self.active_trade.order_ticket)
+            if not result.success:
+                return f"Cancel failed: {result.error_message}"
             action = "Pending order cancelled"
         else:
-            result = await self.mt5.close_position_async(self.active_trade.ticket)
-            action = f"Position closed @ {result.price or 0:.2f}"
-
-        if not result.success:
-            msg = f"Close/cancel failed: {result.error_message}"
-            log.error(msg)
-            return msg
+            # Close all open sub-positions
+            closed, failed = await self._close_all_positions()
+            action = f"{closed} position(s) closed"
+            if failed > 0:
+                action += f" ({failed} failed)"
 
         msg = (
             f"{'[DRY-RUN] ' if self.config.dry_run else ''}"
@@ -462,77 +632,189 @@ class TradeManager:
     async def check_position_status(self) -> Optional[str]:
         """
         Poll MT5 to check if position/order is still alive.
-        Handles: pending→filled transition, position closed externally, pending cancelled.
+        Detects TP hits (positions auto-closed by MT5), trails SL on remaining.
         """
         if self.active_trade is None:
             return None
 
         # If pending limit order, check if it got filled or cancelled
         if self.active_trade.is_pending:
-            return await self._check_pending_status()
+            result = await self._check_pending_status()
+            return self._notify(result) if result else None
 
-        # For open positions, check if still alive
-        positions = await self.mt5.get_open_positions_async()
-        our_tickets = {p.ticket for p in positions}
-
-        if self.active_trade.ticket not in our_tickets:
-            msg = (
-                f"Position {self.active_trade.ticket} closed externally "
-                f"(SL/TP hit or manual close)"
-            )
-            log.info(msg)
-            self.active_trade = None
-            self._save_state()
-            return msg
+        # Sync sub-positions: detect TP hits, trail SL, clear if all closed
+        result = await self._sync_sub_positions()
+        if result:
+            return self._notify(result)
 
         # Trailing stop logic — ratchet SL as price moves in our favor
-        if self.active_trade.trail_active:
-            return await self._update_trailing_sl()
+        if self.active_trade and self.active_trade.trail_active:
+            result = await self._update_trailing_sl()
+            return self._notify(result) if result else None
+
+        return None
+
+    async def _sync_sub_positions(self) -> Optional[str]:
+        """Check all sub-positions against MT5, detect closures, trail SL.
+
+        Returns a notification message if something changed, None otherwise.
+        """
+        trade = self.active_trade
+        if trade is None:
+            return None
+
+        sub_tickets = trade.sub_tickets or [trade.ticket]
+
+        positions = await self.mt5.get_open_positions_async()
+        open_mt5 = {p.ticket for p in positions}
+
+        still_open = [t for t in sub_tickets if t in open_mt5]
+        expected_open = len(sub_tickets) - trade.tp_hits_count
+        newly_closed = expected_open - len(still_open)
+
+        if newly_closed <= 0 and len(still_open) > 0:
+            return None  # No changes
+
+        msgs = []
+
+        if newly_closed > 0:
+            old_hits = trade.tp_hits_count
+            trade.tp_hits_count += newly_closed
+
+            # Calculate remaining lot from actual MT5 positions
+            trade.remaining_lot = round(
+                sum(p.volume for p in positions if p.ticket in set(still_open)), 2)
+
+            for i in range(old_hits + 1, trade.tp_hits_count + 1):
+                tp_price = trade.tp_levels[i - 1] if i <= len(trade.tp_levels) else None
+                msgs.append(f"TP{i} hit{f' ({tp_price:.2f})' if tp_price else ''}!")
+
+            msgs.append(f"{len(still_open)} pos remaining ({trade.remaining_lot:.2f} lot)")
+
+            # Trail SL on remaining positions
+            new_sl = self._get_sl_after_tp(trade.tp_hits_count)
+            if new_sl is not None and len(still_open) > 0:
+                ok = await self._modify_sl_all(new_sl)
+                if ok:
+                    trade.current_sl = new_sl
+                    msgs.append(f"SL ->{new_sl:.2f}")
+
+        # All positions closed
+        if len(still_open) == 0:
+            if not msgs:
+                remaining = trade.remaining_lot
+                msgs.append(
+                    f"All positions closed externally"
+                    f"{f' — {remaining:.2f} lot was still open' if remaining > 0 else ''}"
+                )
+            else:
+                msgs.append("Trade fully closed")
+
+            self.active_trade = None
+            self._save_state()
+            msg = " | ".join(msgs)
+            log.info(msg)
+            return f"{'[DRY-RUN] ' if self.config.dry_run else ''}{msg}"
+
+        trade.last_updated = time.time()
+        self._save_state()
+        msg = " | ".join(msgs)
+        log.info(msg)
+        return f"{'[DRY-RUN] ' if self.config.dry_run else ''}{msg}" if msgs else None
+
+    def _get_sl_after_tp(self, tp_hits: int) -> Optional[float]:
+        """Determine new SL after TP hits: TP1→breakeven, TP2→TP1, TP3→TP2, etc."""
+        trade = self.active_trade
+        if trade is None or tp_hits <= 0:
+            return None
+
+        if tp_hits == 1:
+            return trade.entry_price  # Breakeven
+
+        # TP2+ → SL to previous TP level
+        idx = tp_hits - 2  # 0-based index into tp_levels
+        if idx < len(trade.tp_levels):
+            return trade.tp_levels[idx]
 
         return None
 
     async def _check_pending_status(self) -> Optional[str]:
-        """Check if a pending order was filled or cancelled."""
-        # Check if the pending order still exists
-        pending_orders = await self.mt5.get_pending_orders_async()
-        pending_tickets = {o.ticket for o in pending_orders}
+        """Check if pending orders were filled or cancelled (supports multi-order)."""
+        trade = self.active_trade
 
-        if self.active_trade.order_ticket in pending_tickets:
-            # Still pending, nothing to do
+        # Collect all pending order tickets we're tracking
+        tracked_orders = trade.pending_order_tickets or (
+            [trade.order_ticket] if trade.order_ticket else [])
+
+        if not tracked_orders:
             return None
 
-        # Order is gone — check if it became a position (filled)
+        # Check which orders are still pending in MT5
+        pending_orders = await self.mt5.get_pending_orders_async()
+        pending_set = {o.ticket for o in pending_orders}
+        still_pending = [t for t in tracked_orders if t in pending_set]
+        newly_gone = [t for t in tracked_orders if t not in pending_set]
+
+        if not newly_gone:
+            return None  # All still pending
+
+        # Find new positions (filled orders become positions with new ticket numbers)
         positions = await self.mt5.get_open_positions_async()
+        known_tickets = set(trade.sub_tickets)
+        new_positions = [p for p in positions
+                         if p.magic == 123456
+                         and p.symbol == self.config.mt5_symbol
+                         and p.ticket not in known_tickets]
 
-        # Look for a position opened by our magic number with matching symbol
-        our_position = None
-        for p in positions:
-            if p.magic == 123456 and p.symbol == self.config.mt5_symbol:
-                our_position = p
-                break
+        msgs = []
 
-        if our_position:
-            # Pending order was filled — transition to active position
-            self.active_trade.is_pending = False
-            self.active_trade.ticket = our_position.ticket
-            self.active_trade.entry_price = our_position.price_open
-            self.active_trade.order_ticket = None
-            self.active_trade.last_updated = time.time()
+        if new_positions:
+            for p in new_positions:
+                trade.sub_tickets.append(p.ticket)
+            if trade.ticket == 0:
+                trade.ticket = new_positions[0].ticket
+            trade.entry_price = new_positions[0].price_open
+            msgs.append(f"{len(new_positions)} limit order(s) filled @ {trade.entry_price:.2f}")
+
+        # Update pending tracking
+        trade.pending_order_tickets = still_pending
+
+        # Check if all orders are resolved
+        if not still_pending:
+            if trade.sub_tickets:
+                # All resolved — transition to active position tracking
+                trade.is_pending = False
+                trade.order_ticket = None
+                trade.remaining_lot = round(
+                    sum(p.volume for p in positions if p.ticket in set(trade.sub_tickets)), 2)
+                trade.lot_size = trade.remaining_lot
+                trade.last_updated = time.time()
+                self._save_state()
+
+                msg = (
+                    f"Limit order FILLED — {trade.direction.value} "
+                    f"{trade.pair} @ {trade.entry_price:.2f}\n"
+                    f"   {len(trade.sub_tickets)} positions x {self.config.close_lot_per_tp} lot"
+                )
+                log.info(msg)
+                return msg
+            else:
+                # All cancelled/expired, no fills
+                msg = f"All pending orders cancelled/expired ({len(newly_gone)} orders)"
+                log.info(msg)
+                self.active_trade = None
+                self._save_state()
+                return msg
+
+        # Some filled, some still pending
+        if msgs:
+            trade.last_updated = time.time()
             self._save_state()
-
-            msg = (
-                f"Limit order FILLED — {self.active_trade.direction.value} "
-                f"{self.active_trade.pair} @ {our_position.price_open:.2f}"
-            )
+            msg = " | ".join(msgs) + f" | {len(still_pending)} order(s) still pending"
             log.info(msg)
             return msg
-        else:
-            # Order was cancelled/expired without filling
-            msg = f"Pending order {self.active_trade.order_ticket} cancelled/expired"
-            log.info(msg)
-            self.active_trade = None
-            self._save_state()
-            return msg
+
+        return None
 
     # ── Startup reconciliation ──────────────────────────────────
 
@@ -542,15 +824,67 @@ class TradeManager:
         has_state = self.active_trade is not None
         has_position = len(positions) > 0
 
-        if has_state and has_position:
-            # Check if our tracked position is still open
-            our_tickets = {p.ticket for p in positions}
-            if self.active_trade.ticket in our_tickets:
-                log.info("Reconcile: active trade ticket=%d still open — resuming",
-                         self.active_trade.ticket)
+        # Handle pending limit orders on restart
+        if has_state and self.active_trade.is_pending:
+            pending_tickets = self.active_trade.pending_order_tickets or (
+                [self.active_trade.order_ticket] if self.active_trade.order_ticket else [])
+            pending_orders = await self.mt5.get_pending_orders_async()
+            pending_set = {o.ticket for o in pending_orders}
+            still_pending = [t for t in pending_tickets if t in pending_set]
+
+            # Check for filled orders that became positions
+            known = set(self.active_trade.sub_tickets)
+            new_pos = [p for p in positions
+                       if p.magic == 123456 and p.symbol == self.config.mt5_symbol
+                       and p.ticket not in known]
+            for p in new_pos:
+                self.active_trade.sub_tickets.append(p.ticket)
+                if self.active_trade.ticket == 0:
+                    self.active_trade.ticket = p.ticket
+                self.active_trade.entry_price = p.price_open
+
+            self.active_trade.pending_order_tickets = still_pending
+
+            if not still_pending:
+                self.active_trade.is_pending = False
+                self.active_trade.order_ticket = None
+                if self.active_trade.sub_tickets:
+                    self.active_trade.remaining_lot = round(
+                        sum(p.volume for p in positions if p.ticket in set(self.active_trade.sub_tickets)), 2)
+                    self.active_trade.lot_size = self.active_trade.remaining_lot
+                    log.info("Reconcile: pending orders resolved — %d position(s) active",
+                             len(self.active_trade.sub_tickets))
+                    self._save_state()
+                    return
+                else:
+                    log.info("Reconcile: all pending orders gone, no positions — clearing")
+                    self.active_trade = None
+                    self._save_state()
+                    return
             else:
-                log.warning("Reconcile: tracked ticket=%d not found in MT5 — clearing state",
-                            self.active_trade.ticket)
+                log.info("Reconcile: %d pending order(s) still active, %d filled",
+                         len(still_pending), len(new_pos))
+                self._save_state()
+                return
+
+        if has_state and has_position:
+            # Check if any of our tracked sub-positions are still open
+            open_mt5 = {p.ticket for p in positions}
+            sub_tickets = self.active_trade.sub_tickets or [self.active_trade.ticket]
+            still_open = [t for t in sub_tickets if t in open_mt5]
+
+            if still_open:
+                # Update state to reflect current reality
+                closed_count = len(sub_tickets) - len(still_open)
+                if closed_count > self.active_trade.tp_hits_count:
+                    self.active_trade.tp_hits_count = closed_count
+                self.active_trade.remaining_lot = round(
+                    sum(p.volume for p in positions if p.ticket in set(still_open)), 2)
+                self._save_state()
+                log.info("Reconcile: %d/%d sub-positions still open — resuming (tp_hits=%d)",
+                         len(still_open), len(sub_tickets), self.active_trade.tp_hits_count)
+            else:
+                log.warning("Reconcile: none of tracked tickets found in MT5 — clearing state")
                 self.active_trade = None
                 self._save_state()
 
@@ -584,8 +918,20 @@ class TradeManager:
                 return
 
             trade_data["direction"] = Direction(trade_data["direction"])
+            # Remove unknown keys that may have been saved by older versions
+            valid_fields = {f.name for f in __import__('dataclasses').fields(TradeState)}
+            trade_data = {k: v for k, v in trade_data.items() if k in valid_fields}
             self.active_trade = TradeState(**trade_data)
-            log.info("Loaded active trade: ticket=%d", self.active_trade.ticket)
+            # Backward compat: old state files won't have remaining_lot or sub_tickets
+            if self.active_trade.remaining_lot <= 0:
+                self.active_trade.remaining_lot = self.active_trade.lot_size
+            if not self.active_trade.sub_tickets and not self.active_trade.is_pending:
+                self.active_trade.sub_tickets = [self.active_trade.ticket]
+            if not hasattr(self.active_trade, 'pending_order_tickets'):
+                self.active_trade.pending_order_tickets = []
+            log.info("Loaded active trade: tickets=%s, pending=%s, remaining_lot=%.2f, tp_hits=%d",
+                     self.active_trade.sub_tickets, self.active_trade.pending_order_tickets,
+                     self.active_trade.remaining_lot, self.active_trade.tp_hits_count)
 
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
             log.error("Corrupted state.json: %s — treating as no active trade", e)
@@ -606,6 +952,56 @@ class TradeManager:
         os.replace(tmp_path, self.state_path)
 
     # ── Helpers ─────────────────────────────────────────────────
+
+    async def _modify_sl_all(self, new_sl: float) -> bool:
+        """Modify SL on all open sub-positions. Returns True if all succeeded."""
+        trade = self.active_trade
+        if trade is None:
+            return False
+
+        sub_tickets = trade.sub_tickets or [trade.ticket]
+
+        positions = await self.mt5.get_open_positions_async()
+        open_mt5 = {p.ticket for p in positions}
+
+        all_ok = True
+        modified = 0
+        for ticket in sub_tickets:
+            if ticket in open_mt5:
+                result = await self.mt5.modify_sl_async(ticket, new_sl)
+                if result.success:
+                    modified += 1
+                else:
+                    log.error("SL modify failed for ticket=%d: %s", ticket, result.error_message)
+                    all_ok = False
+
+        if modified > 0:
+            log.info("SL modified on %d position(s) to %.2f", modified, new_sl)
+        return all_ok
+
+    async def _close_all_positions(self) -> tuple[int, int]:
+        """Close all open sub-positions. Returns (closed_count, failed_count)."""
+        trade = self.active_trade
+        if trade is None:
+            return 0, 0
+
+        sub_tickets = trade.sub_tickets or [trade.ticket]
+
+        positions = await self.mt5.get_open_positions_async()
+        open_mt5 = {p.ticket for p in positions}
+
+        closed = 0
+        failed = 0
+        for ticket in sub_tickets:
+            if ticket in open_mt5:
+                result = await self.mt5.close_position_async(ticket)
+                if result.success:
+                    closed += 1
+                else:
+                    log.error("Close failed for ticket=%d: %s", ticket, result.error_message)
+                    failed += 1
+
+        return closed, failed
 
     def _kill_switch_active(self) -> bool:
         return os.path.exists(os.path.join(self.base_dir, KILL_SWITCH_FILE))
