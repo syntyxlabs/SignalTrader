@@ -1,2 +1,21 @@
+# Environment
 .env
+
+# Python
 __pycache__/
+*.pyc
+
+# Telethon session files
+*.session
+
+# State files
+state*.json
+
+# Logs
+logs/
+
+# Data dumps
+*.csv
+
+# Analysis artifacts
+analysis/

@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import logging.handlers
 import os
 import signal
 import sys
@@ -26,7 +27,9 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[
         logging.StreamHandler(open(sys.stdout.fileno(), mode='w', encoding='utf-8', closefd=False)),
-        logging.FileHandler(os.path.join(LOG_DIR, "trades.log"), encoding="utf-8"),
+        logging.handlers.RotatingFileHandler(
+            os.path.join(LOG_DIR, "trades.log"), encoding="utf-8",
+            maxBytes=500_000, backupCount=3),
     ],
 )
 log = logging.getLogger("signal_trader")
