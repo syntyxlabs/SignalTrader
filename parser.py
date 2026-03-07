@@ -2,11 +2,21 @@
 
 import json
 import logging
+import re
 from typing import Optional
 
 from claude_code_sdk import query, ClaudeCodeOptions, AssistantMessage, TextBlock
 
 from models import Direction, OrderExecution, ParsedSignal, SignalType
+
+# Pre-filter: skip obvious noise without spawning Claude SDK process
+_TRADING_KEYWORDS = re.compile(
+    r'\b(buy|sell|bought|sold|long|short|tp\d?|sl|stop\s?loss|take\s?profit|'
+    r'entry|breakeven|trail|close|exit|xauusd|gold)\b',
+    re.IGNORECASE
+)
+_URL_ONLY = re.compile(r'^https?://\S+$')
+_EMOJI_ONLY = re.compile(r'^[\U0001f300-\U0001fAFF\U00002702-\U000027B0\s\u200d\ufe0f*#]+$')
 
 log = logging.getLogger("signal_trader.parser")
 
@@ -44,6 +54,7 @@ For NOISE (anything that is not a trade action):
 
 Rules:
 - If the message contains a direction (BUY/SELL/BOUGHT/SOLD), a price, and at least one TP, it's NEW_SIGNAL — even if SL is missing. "BOUGHT" = BUY, "SOLD" = SELL.
+- IMPORTANT: "BUY NOW XAUUSD" or "SELL NOW XAUUSD" (bare command with no price/SL/TP) is also NEW_SIGNAL with execution=MARKET, price=0, sl=null, tp=[]. The bot will use market price and defaults. Same for "BUY XAUUSD" or "SELL XAUUSD" with no details.
 - Determine MARKET vs LIMIT from the wording. "BUY NOW" / "SELL NOW" = MARKET. "BUY LIMIT" / "SELL LIMIT" = LIMIT. If ambiguous, default to MARKET.
 - "Edit SL", "Move SL", "SL to breakeven", "SL to TP1" etc. are SL_UPDATE. When they say "SL to TP1", resolve TP1 to the numeric value if mentioned in the message, otherwise just set new_sl to 0 and reason to the instruction.
 - "TP1 hit", "TP2 reached", "Target 3 done" etc. are TP_HIT. BUT if the message ALSO contains an SL instruction (e.g., "TP3 Hit!!! edit your stoploss to TP1"), return SL_UPDATE instead — the SL change is the actionable part.
@@ -65,8 +76,32 @@ class SignalParser:
             model=self.model,
         )
 
+    def _is_obvious_noise(self, text: str) -> bool:
+        """Fast regex check to skip messages that are clearly not trading signals."""
+        stripped = text.strip()
+        # URL-only messages
+        if _URL_ONLY.match(stripped):
+            return True
+        # Emoji-only messages
+        if _EMOJI_ONLY.match(stripped):
+            return True
+        # No trading keywords at all
+        if not _TRADING_KEYWORDS.search(stripped):
+            return True
+        return False
+
     async def parse(self, message_text: str, timestamp: float) -> ParsedSignal:
         """Parse a Telegram message into a ParsedSignal."""
+        # Pre-filter: skip obvious noise without spawning Claude SDK
+        if self._is_obvious_noise(message_text):
+            log.info("Pre-filter NOISE (no trading keywords): %s", message_text[:80])
+            return ParsedSignal(
+                type=SignalType.NOISE,
+                raw_message=message_text,
+                timestamp=timestamp,
+                reason="Pre-filter: no trading keywords",
+            )
+
         try:
             raw_response = ""
             async for message in query(prompt=message_text, options=self.options):

@@ -64,6 +64,8 @@ class TradeState:
     remaining_lot: float = 0.0  # Total lot still open across all sub-positions
     sub_tickets: list[int] = field(default_factory=list)  # All position tickets (one per TP level)
     pending_order_tickets: list[int] = field(default_factory=list)  # Pending limit order tickets
+    closed_tickets: list[int] = field(default_factory=list)  # Tickets confirmed closed (prevents re-detection)
+    pending_sl: Optional[float] = None  # SL that failed to apply — retry on next poll
 
 
 @dataclass

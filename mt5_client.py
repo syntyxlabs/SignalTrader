@@ -1,10 +1,11 @@
 """MT5 Client — Thin wrapper around MetaTrader5 with async bridge."""
 
 import asyncio
+import functools
 import logging
 import os
-import time
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
 from typing import Optional
 
 import MetaTrader5 as mt5
@@ -14,6 +15,8 @@ from models import Config, Direction, TradeResult, TradeState
 log = logging.getLogger("signal_trader.mt5")
 
 KILL_SWITCH_FILE = "STOP_TRADING"
+MAGIC_NUMBER = 123456
+MT5_TIMEOUT = 30  # seconds — prevents frozen terminal from blocking forever
 
 
 class MT5Client:
@@ -104,9 +107,15 @@ class MT5Client:
 
     # ── Safety checks ───────────────────────────────────────────
 
-    def _check_kill_switch(self) -> bool:
-        """Return True if kill switch is active (should NOT trade)."""
-        return os.path.exists(os.path.join(self.base_dir, KILL_SWITCH_FILE))
+    def _pre_trade_checks(self, check_symbol: bool = False, cap_lot: float = 0.0) -> Optional[TradeResult]:
+        """Common pre-trade validation. Returns TradeResult on failure, None if OK."""
+        if os.path.exists(os.path.join(self.base_dir, KILL_SWITCH_FILE)):
+            return TradeResult(success=False, error_message="Kill switch active")
+        if not self.is_connected():
+            return TradeResult(success=False, error_message="MT5 not connected")
+        if check_symbol and not self._check_symbol():
+            return TradeResult(success=False, error_message=f"Symbol {self.config.mt5_symbol} unavailable")
+        return None
 
     def _enforce_lot_cap(self, lot: float) -> float:
         """Clamp lot size to absolute max."""
@@ -129,36 +138,44 @@ class MT5Client:
         return True
 
     def _get_filling_mode(self) -> int:
-        """Detect the supported filling mode for the symbol.
-        filling_mode bitmask: bit 0 (1) = FOK, bit 1 (2) = IOC.
-        """
+        """Detect the supported filling mode for the symbol."""
         info = mt5.symbol_info(self.config.mt5_symbol)
         if info is None:
             return mt5.ORDER_FILLING_RETURN
         filling = info.filling_mode
-        if filling & 1:  # FOK supported
+        if filling & 1:
             return mt5.ORDER_FILLING_FOK
-        if filling & 2:  # IOC supported
+        if filling & 2:
             return mt5.ORDER_FILLING_IOC
         return mt5.ORDER_FILLING_RETURN
 
+    def _calculate_tp(self, direction: Direction, base_price: float,
+                      tp_distance: float = 0.0, tp_price: float = 0.0) -> float:
+        """Calculate TP price. Absolute tp_price takes priority over distance."""
+        if tp_price > 0:
+            return tp_price
+        if tp_distance > 0:
+            return base_price + tp_distance if direction == Direction.BUY else base_price - tp_distance
+        return 0.0
+
+    def _send_order(self, request: dict, description: str) -> TradeResult:
+        """Send order to MT5 and handle common error patterns."""
+        result = mt5.order_send(request)
+        if result is None:
+            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
+        if result.retcode != mt5.TRADE_RETCODE_DONE:
+            log.error("%s failed: retcode=%d, comment=%s", description, result.retcode, result.comment)
+            return TradeResult(success=False, error_code=result.retcode, error_message=result.comment)
+        return TradeResult(success=True, ticket=result.order, price=result.price)
+
     # ── Sync order methods ──────────────────────────────────────
 
-    def open_position(self, direction: Direction, lot: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
-        """Open a market order.
-
-        Args:
-            tp_distance: Fixed TP distance from tick price (0=disabled).
-            tp_price: Absolute TP price (0=disabled). Takes priority over tp_distance.
-        """
-        if self._check_kill_switch():
-            return TradeResult(success=False, error_message="Kill switch active")
-
-        if not self.is_connected():
-            return TradeResult(success=False, error_message="MT5 not connected")
-
-        if not self._check_symbol():
-            return TradeResult(success=False, error_message=f"Symbol {self.config.mt5_symbol} unavailable")
+    def open_position(self, direction: Direction, lot: float, sl: float,
+                      tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
+        """Open a market order."""
+        fail = self._pre_trade_checks(check_symbol=True)
+        if fail:
+            return fail
 
         lot = self._enforce_lot_cap(lot)
 
@@ -174,13 +191,7 @@ class MT5Client:
             return TradeResult(success=False, error_message="Cannot get tick data")
 
         price = tick.ask if direction == Direction.BUY else tick.bid
-
-        # Determine TP: absolute price takes priority, then distance-based
-        tp = 0.0
-        if tp_price > 0:
-            tp = tp_price
-        elif tp_distance > 0:
-            tp = price + tp_distance if direction == Direction.BUY else price - tp_distance
+        tp = self._calculate_tp(direction, price, tp_distance, tp_price)
 
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
@@ -190,7 +201,7 @@ class MT5Client:
             "price": price,
             "sl": sl,
             "deviation": 20,
-            "magic": 123456,
+            "magic": MAGIC_NUMBER,
             "comment": "SignalTrader",
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": self._get_filling_mode(),
@@ -198,108 +209,69 @@ class MT5Client:
         if tp > 0:
             request["tp"] = tp
 
-        result = mt5.order_send(request)
-        if result is None:
-            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
-
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            log.error("Order failed: retcode=%d, comment=%s", result.retcode, result.comment)
-            return TradeResult(
-                success=False,
-                error_code=result.retcode,
-                error_message=result.comment,
-            )
+        result = self._send_order(request, "Order")
+        if not result.success:
+            return result
 
         # Some brokers return price=0 from order_send — fetch real fill from position
         fill_price = result.price
         if not fill_price:
-            pos = self._get_position_by_ticket(result.order)
+            pos = self._get_position_by_ticket(result.ticket)
             if pos:
                 fill_price = pos.price_open
                 log.info("Fetched real fill price from position: %.2f", fill_price)
 
-        log.info("Position opened: ticket=%d, price=%.2f, lot=%.2f", result.order, fill_price, lot)
-        return TradeResult(success=True, ticket=result.order, price=fill_price)
+        log.info("Position opened: ticket=%d, price=%.2f, lot=%.2f", result.ticket, fill_price, lot)
+        return TradeResult(success=True, ticket=result.ticket, price=fill_price)
+
+    def modify_sltp(self, ticket: int, sl: float = None, tp: float = None) -> TradeResult:
+        """Modify SL and/or TP of an open position. Preserves the other value if not specified."""
+        fail = self._pre_trade_checks()
+        if fail:
+            return fail
+
+        if self.config.dry_run:
+            parts = []
+            if sl is not None:
+                parts.append(f"SL={sl:.2f}")
+            if tp is not None:
+                parts.append(f"TP={tp:.2f}")
+            log.info("[DRY-RUN] Would modify ticket=%d %s", ticket, " ".join(parts))
+            return TradeResult(success=True, ticket=ticket)
+
+        position = self._get_position_by_ticket(ticket)
+        if position is None:
+            return TradeResult(success=False, error_message=f"Position {ticket} not found")
+
+        request = {
+            "action": mt5.TRADE_ACTION_SLTP,
+            "symbol": self.config.mt5_symbol,
+            "position": ticket,
+            "sl": sl if sl is not None else position.sl,
+            "tp": tp if tp is not None else position.tp,
+        }
+
+        result = self._send_order(request, f"SLTP modify (ticket={ticket})")
+        if result.success:
+            parts = []
+            if sl is not None:
+                parts.append(f"sl={sl:.2f}")
+            if tp is not None:
+                parts.append(f"tp={tp:.2f}")
+            log.info("SLTP modified: ticket=%d, %s", ticket, ", ".join(parts))
+            result.ticket = ticket
+        return result
 
     def modify_sl(self, ticket: int, new_sl: float) -> TradeResult:
         """Modify the stop loss of an open position."""
-        if self._check_kill_switch():
-            return TradeResult(success=False, error_message="Kill switch active")
-
-        if not self.is_connected():
-            return TradeResult(success=False, error_message="MT5 not connected")
-
-        if self.config.dry_run:
-            log.info("[DRY-RUN] Would modify ticket=%d SL=%.2f", ticket, new_sl)
-            return TradeResult(success=True, ticket=ticket)
-
-        # Get current position to preserve TP
-        position = self._get_position_by_ticket(ticket)
-        if position is None:
-            return TradeResult(success=False, error_message=f"Position {ticket} not found")
-
-        request = {
-            "action": mt5.TRADE_ACTION_SLTP,
-            "symbol": self.config.mt5_symbol,
-            "position": ticket,
-            "sl": new_sl,
-            "tp": position.tp,
-        }
-
-        result = mt5.order_send(request)
-        if result is None:
-            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
-
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            log.error("SL modify failed: retcode=%d, comment=%s", result.retcode, result.comment)
-            return TradeResult(success=False, error_code=result.retcode, error_message=result.comment)
-
-        log.info("SL modified: ticket=%d, new_sl=%.2f", ticket, new_sl)
-        return TradeResult(success=True, ticket=ticket)
+        return self.modify_sltp(ticket, sl=new_sl)
 
     def modify_tp(self, ticket: int, new_tp: float) -> TradeResult:
         """Modify the take profit of an open position."""
-        if self._check_kill_switch():
-            return TradeResult(success=False, error_message="Kill switch active")
-
-        if not self.is_connected():
-            return TradeResult(success=False, error_message="MT5 not connected")
-
-        if self.config.dry_run:
-            log.info("[DRY-RUN] Would modify ticket=%d TP=%.2f", ticket, new_tp)
-            return TradeResult(success=True, ticket=ticket)
-
-        # Get current position to preserve SL
-        position = self._get_position_by_ticket(ticket)
-        if position is None:
-            return TradeResult(success=False, error_message=f"Position {ticket} not found")
-
-        request = {
-            "action": mt5.TRADE_ACTION_SLTP,
-            "symbol": self.config.mt5_symbol,
-            "position": ticket,
-            "sl": position.sl,
-            "tp": new_tp,
-        }
-
-        result = mt5.order_send(request)
-        if result is None:
-            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
-
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            log.error("TP modify failed: retcode=%d, comment=%s", result.retcode, result.comment)
-            return TradeResult(success=False, error_code=result.retcode, error_message=result.comment)
-
-        log.info("TP modified: ticket=%d, new_tp=%.2f", ticket, new_tp)
-        return TradeResult(success=True, ticket=ticket)
+        return self.modify_sltp(ticket, tp=new_tp)
 
     def close_position(self, ticket: int, volume: float = 0.0) -> TradeResult:
-        """Close a position (fully or partially) at market.
-
-        Args:
-            ticket: Position ticket to close.
-            volume: Lot size to close. If 0 or >= position volume, close entire position.
-        """
+        """Close a position (fully or partially) at market."""
         if not self.is_connected():
             return TradeResult(success=False, error_message="MT5 not connected")
 
@@ -312,12 +284,10 @@ class MT5Client:
         if position is None:
             return TradeResult(success=False, error_message=f"Position {ticket} not found")
 
-        # Determine close volume: partial or full
         close_volume = position.volume
         if 0 < volume < position.volume:
             close_volume = volume
 
-        # Reverse the direction to close
         close_type = mt5.ORDER_TYPE_SELL if position.type == mt5.ORDER_TYPE_BUY else mt5.ORDER_TYPE_BUY
         tick = mt5.symbol_info_tick(self.config.mt5_symbol)
         if tick is None:
@@ -333,35 +303,26 @@ class MT5Client:
             "position": ticket,
             "price": price,
             "deviation": 20,
-            "magic": 123456,
+            "magic": MAGIC_NUMBER,
             "comment": "SignalTrader close",
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": self._get_filling_mode(),
         }
 
-        result = mt5.order_send(request)
-        if result is None:
-            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
+        result = self._send_order(request, f"Close (ticket={ticket})")
+        if result.success:
+            partial = close_volume < position.volume
+            log.info("Position %s: ticket=%d, vol=%.2f, price=%.2f",
+                     "partial-closed" if partial else "closed", ticket, close_volume, result.price)
+            result.ticket = ticket
+        return result
 
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            log.error("Close failed: retcode=%d, comment=%s", result.retcode, result.comment)
-            return TradeResult(success=False, error_code=result.retcode, error_message=result.comment)
-
-        partial = close_volume < position.volume
-        log.info("Position %s: ticket=%d, vol=%.2f, price=%.2f",
-                 "partial-closed" if partial else "closed", ticket, close_volume, result.price)
-        return TradeResult(success=True, ticket=ticket, price=result.price)
-
-    def open_limit_order(self, direction: Direction, lot: float, price: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
-        """Place a pending limit order at a specific price. Returns TradeResult."""
-        if self._check_kill_switch():
-            return TradeResult(success=False, error_message="Kill switch active")
-
-        if not self.is_connected():
-            return TradeResult(success=False, error_message="MT5 not connected")
-
-        if not self._check_symbol():
-            return TradeResult(success=False, error_message=f"Symbol {self.config.mt5_symbol} unavailable")
+    def open_limit_order(self, direction: Direction, lot: float, price: float,
+                         sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
+        """Place a pending limit order at a specific price."""
+        fail = self._pre_trade_checks(check_symbol=True)
+        if fail:
+            return fail
 
         lot = self._enforce_lot_cap(lot)
 
@@ -372,6 +333,7 @@ class MT5Client:
             return TradeResult(success=True, ticket=0, price=price)
 
         order_type = mt5.ORDER_TYPE_BUY_LIMIT if direction == Direction.BUY else mt5.ORDER_TYPE_SELL_LIMIT
+        tp = self._calculate_tp(direction, price, tp_distance, tp_price)
 
         request = {
             "action": mt5.TRADE_ACTION_PENDING,
@@ -381,34 +343,19 @@ class MT5Client:
             "price": price,
             "sl": sl,
             "deviation": 20,
-            "magic": 123456,
+            "magic": MAGIC_NUMBER,
             "comment": "SignalTrader limit",
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": self._get_filling_mode(),
         }
-        # Determine TP: absolute price takes priority, then distance-based
-        tp = 0.0
-        if tp_price > 0:
-            tp = tp_price
-        elif tp_distance > 0:
-            tp = price + tp_distance if direction == Direction.BUY else price - tp_distance
         if tp > 0:
             request["tp"] = tp
 
-        result = mt5.order_send(request)
-        if result is None:
-            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
-
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            log.error("Limit order failed: retcode=%d, comment=%s", result.retcode, result.comment)
-            return TradeResult(
-                success=False,
-                error_code=result.retcode,
-                error_message=result.comment,
-            )
-
-        log.info("Limit order placed: order=%d, %s @ %.2f, lot=%.2f", result.order, direction.value, price, lot)
-        return TradeResult(success=True, ticket=result.order, price=price)
+        result = self._send_order(request, "Limit order")
+        if result.success:
+            log.info("Limit order placed: order=%d, %s @ %.2f, lot=%.2f",
+                     result.ticket, direction.value, price, lot)
+        return result
 
     def cancel_order(self, order_ticket: int) -> TradeResult:
         """Cancel a pending order."""
@@ -424,16 +371,11 @@ class MT5Client:
             "order": order_ticket,
         }
 
-        result = mt5.order_send(request)
-        if result is None:
-            return TradeResult(success=False, error_message=f"order_send returned None: {mt5.last_error()}")
-
-        if result.retcode != mt5.TRADE_RETCODE_DONE:
-            log.error("Cancel order failed: retcode=%d, comment=%s", result.retcode, result.comment)
-            return TradeResult(success=False, error_code=result.retcode, error_message=result.comment)
-
-        log.info("Order cancelled: order=%d", order_ticket)
-        return TradeResult(success=True, ticket=order_ticket)
+        result = self._send_order(request, f"Cancel order (ticket={order_ticket})")
+        if result.success:
+            log.info("Order cancelled: order=%d", order_ticket)
+            result.ticket = order_ticket
+        return result
 
     # ── Query methods ───────────────────────────────────────────
 
@@ -445,13 +387,15 @@ class MT5Client:
         positions = mt5.positions_get(symbol=symbol)
         return list(positions) if positions else []
 
-    def get_current_price(self) -> Optional[float]:
-        """Get the current bid price for the configured symbol."""
+    def get_current_price(self, direction: Direction = None) -> Optional[float]:
+        """Get the current price. Returns ask for BUY, bid for SELL/None."""
         if not self.is_connected():
             return None
         tick = mt5.symbol_info_tick(self.config.mt5_symbol)
         if tick is None:
             return None
+        if direction == Direction.BUY:
+            return tick.ask
         return tick.bid
 
     def get_pending_orders(self, symbol: str = None) -> list:
@@ -462,6 +406,40 @@ class MT5Client:
         orders = mt5.orders_get(symbol=symbol)
         return list(orders) if orders else []
 
+    def get_position_close_reason(self, ticket: int) -> Optional[str]:
+        """Check deal history to determine why a position was closed.
+
+        Returns 'TP', 'SL', 'SO', 'MANUAL', 'EA', or None if unknown.
+        """
+        if not self.is_connected():
+            return None
+
+        # Some brokers need a time range for history_deals_get to work
+        date_from = datetime.now() - timedelta(days=7)
+        date_to = datetime.now() + timedelta(hours=1)
+        # Try with position filter first, fall back to time range
+        deals = mt5.history_deals_get(position=ticket)
+        if not deals:
+            all_deals = mt5.history_deals_get(date_from, date_to)
+            if all_deals:
+                deals = [d for d in all_deals if d.position_id == ticket]
+        if not deals:
+            return None
+
+        # Find the closing deal (entry == DEAL_ENTRY_OUT = 1)
+        for deal in deals:
+            if deal.entry == 1:  # DEAL_ENTRY_OUT
+                reason_map = {
+                    0: "MANUAL",   # DEAL_REASON_CLIENT
+                    3: "EA",       # DEAL_REASON_EXPERT
+                    4: "SL",       # DEAL_REASON_SL
+                    5: "TP",       # DEAL_REASON_TP
+                    6: "SO",       # DEAL_REASON_SO
+                }
+                return reason_map.get(deal.reason, f"REASON_{deal.reason}")
+
+        return None
+
     def _get_position_by_ticket(self, ticket: int):
         """Get a specific position by ticket number."""
         positions = mt5.positions_get(ticket=ticket)
@@ -471,42 +449,46 @@ class MT5Client:
 
     # ── Async bridge ────────────────────────────────────────────
 
+    async def _run(self, func, *args):
+        """Run a sync MT5 method in the executor with timeout protection."""
+        loop = asyncio.get_running_loop()
+        return await asyncio.wait_for(
+            loop.run_in_executor(self._executor, functools.partial(func, *args)),
+            timeout=MT5_TIMEOUT,
+        )
+
     async def connect_async(self) -> bool:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.connect)
+        return await self._run(self.connect)
 
-    async def open_position_async(self, direction: Direction, lot: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.open_position, direction, lot, sl, tp_distance, tp_price)
+    async def open_position_async(self, direction, lot, sl, tp_distance=0.0, tp_price=0.0):
+        return await self._run(self.open_position, direction, lot, sl, tp_distance, tp_price)
 
-    async def modify_sl_async(self, ticket: int, new_sl: float) -> TradeResult:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.modify_sl, ticket, new_sl)
+    async def modify_sl_async(self, ticket, new_sl):
+        return await self._run(self.modify_sl, ticket, new_sl)
 
-    async def modify_tp_async(self, ticket: int, new_tp: float) -> TradeResult:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.modify_tp, ticket, new_tp)
+    async def modify_tp_async(self, ticket, new_tp):
+        return await self._run(self.modify_tp, ticket, new_tp)
 
-    async def close_position_async(self, ticket: int, volume: float = 0.0) -> TradeResult:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.close_position, ticket, volume)
+    async def modify_sltp_async(self, ticket, sl=None, tp=None):
+        return await self._run(self.modify_sltp, ticket, sl, tp)
 
-    async def get_open_positions_async(self, symbol: str = None) -> list:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.get_open_positions, symbol)
+    async def close_position_async(self, ticket, volume=0.0):
+        return await self._run(self.close_position, ticket, volume)
 
-    async def open_limit_order_async(self, direction: Direction, lot: float, price: float, sl: float, tp_distance: float = 0.0, tp_price: float = 0.0) -> TradeResult:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.open_limit_order, direction, lot, price, sl, tp_distance, tp_price)
+    async def get_open_positions_async(self, symbol=None):
+        return await self._run(self.get_open_positions, symbol)
 
-    async def cancel_order_async(self, order_ticket: int) -> TradeResult:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.cancel_order, order_ticket)
+    async def open_limit_order_async(self, direction, lot, price, sl, tp_distance=0.0, tp_price=0.0):
+        return await self._run(self.open_limit_order, direction, lot, price, sl, tp_distance, tp_price)
 
-    async def get_pending_orders_async(self, symbol: str = None) -> list:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.get_pending_orders, symbol)
+    async def cancel_order_async(self, order_ticket):
+        return await self._run(self.cancel_order, order_ticket)
 
-    async def get_current_price_async(self) -> Optional[float]:
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.get_current_price)
+    async def get_pending_orders_async(self, symbol=None):
+        return await self._run(self.get_pending_orders, symbol)
+
+    async def get_current_price_async(self, direction=None):
+        return await self._run(self.get_current_price, direction)
+
+    async def get_position_close_reason_async(self, ticket):
+        return await self._run(self.get_position_close_reason, ticket)

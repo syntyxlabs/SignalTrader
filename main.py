@@ -15,6 +15,7 @@ from mt5_client import MT5Client
 from parser import SignalParser
 from trade_manager import PositionCounter, TradeManager
 from channel_listener import ChannelListener
+from bot import SignalTraderBot
 
 load_dotenv()
 
@@ -97,8 +98,10 @@ def validate_config(cfg: Config) -> None:
         raise ValueError("safety.max_sl_distance must be positive")
     if cfg.max_positions < 1:
         raise ValueError("safety.max_positions must be at least 1")
+    if cfg.close_lot_per_tp <= 0 and cfg.fixed_tp_distance <= 0:
+        raise ValueError("safety.close_lot_per_tp must be positive when fixed_tp_distance is 0")
 
-    required_env = ["TELEGRAM_API_ID", "TELEGRAM_API_HASH", "MT5_LOGIN", "MT5_PASSWORD", "MT5_SERVER"]
+    required_env = ["TELEGRAM_API_ID", "TELEGRAM_API_HASH", "TELEGRAM_BOT_TOKEN", "MT5_LOGIN", "MT5_PASSWORD", "MT5_SERVER"]
     missing = [k for k in required_env if not os.getenv(k)]
     if missing:
         raise ValueError(f"Missing environment variables: {', '.join(missing)}")
@@ -108,7 +111,7 @@ def validate_config(cfg: Config) -> None:
              cfg.pair, cfg.lot_size, cfg.dry_run, cfg.max_positions, channel_names)
 
 
-async def position_poll_loop(trade_managers: list[TradeManager], listener: ChannelListener, interval: int):
+async def position_poll_loop(trade_managers: list[TradeManager], notify, interval: int):
     """Periodically check if tracked positions are still open (all channels)."""
     while True:
         try:
@@ -116,7 +119,7 @@ async def position_poll_loop(trade_managers: list[TradeManager], listener: Chann
             for tm in trade_managers:
                 notification = await tm.check_position_status()
                 if notification:
-                    await listener.send_notification(notification)
+                    await notify(notification)
         except asyncio.CancelledError:
             break
         except Exception as e:
@@ -165,16 +168,26 @@ async def async_main() -> None:
     for tm in all_managers:
         await tm.reconcile()
 
+    # Initialize Telegram bot (notifications + commands)
+    bot = SignalTraderBot(
+        api_id=int(os.getenv("TELEGRAM_API_ID")),
+        api_hash=os.getenv("TELEGRAM_API_HASH"),
+        bot_token=os.getenv("TELEGRAM_BOT_TOKEN"),
+    )
+    bot.set_trade_managers(trade_managers)
+    bot.set_mt5_client(mt5_client)
+    await bot.start()
+
     # Initialize Telegram listener
     listener = ChannelListener(cfg, signal_parser, trade_managers, BASE_DIR,
-                               notify_callback=None)  # Set callback after init
-    listener.notify = listener.send_notification
+                               notify_callback=None)
+    listener.notify = bot.send  # Route all notifications through the bot
 
     await listener.start()
 
     # Start position polling (covers all channels)
     poll_task = asyncio.create_task(
-        position_poll_loop(all_managers, listener, cfg.position_poll_interval)
+        position_poll_loop(all_managers, bot.send, cfg.position_poll_interval)
     )
 
     log.info("Signal Trader running. Press Ctrl+C to stop.")
@@ -182,7 +195,7 @@ async def async_main() -> None:
     # Send startup notification
     status = "DRY-RUN" if cfg.dry_run else "LIVE"
     channel_list = "\n".join(f"  - {ch.channel_name}" for ch in cfg.channels)
-    await listener.send_notification(
+    await bot.send(
         f"Signal Trader started [{status}]\n"
         f"Pair: {cfg.pair} | Lot: {cfg.lot_size} | Max positions: {cfg.max_positions}\n"
         f"Channels ({len(cfg.channels)}):\n{channel_list}"
@@ -201,6 +214,7 @@ async def async_main() -> None:
         except asyncio.CancelledError:
             pass
         await listener.stop()
+        await bot.stop()
         mt5_client.disconnect()
         log.info("Signal Trader stopped.")
 

@@ -1,9 +1,7 @@
 {
   "channels": [
     {"id": -1002079334288, "name": "TRUE NORTH - VIP"},
-    {"id": -1001622776330, "name": "GOLD SCALPER"},
     {"id": -1001417502545, "name": "GOLD VIP Signal"},
-    {"id": -1001669142938, "name": "GOLD VIP Signals"},
     {"id": -1001855862157, "name": "TRADE WITH HASSNIN"}
   ],
   "trading": {
@@ -19,7 +17,7 @@
     "max_open_trades": 15,
     "stale_signal_seconds": 60,
     "position_poll_interval": 5,
-    "max_price_deviation": 10.0,
+    "max_price_deviation": 3.0,
     "max_sl_distance": 30.0,
     "default_sl_distance": 10.0,
     "default_trail_distance": 5.0,
