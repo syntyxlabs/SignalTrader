@@ -81,6 +81,8 @@ class TradeResult:
 class ChannelConfig:
     channel_id: int
     channel_name: str
+    lot_size: Optional[float] = None  # Per-channel override (None = use global)
+    close_lot_per_tp: Optional[float] = None  # Per-channel override (None = use global)
 
 
 @dataclass

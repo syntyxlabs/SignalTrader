@@ -46,7 +46,10 @@ def load_config(path: str = None) -> Config:
 
     # Backward compat: old "channel" key -> new "channels" list
     if "channels" in raw:
-        channels = [ChannelConfig(ch["id"], ch["name"]) for ch in raw["channels"]]
+        channels = [ChannelConfig(ch["id"], ch["name"],
+                                  lot_size=ch.get("lot_size"),
+                                  close_lot_per_tp=ch.get("close_lot_per_tp"))
+                    for ch in raw["channels"]]
     elif "channel" in raw:
         ch = raw["channel"]
         channels = [ChannelConfig(ch["id"], ch["name"])]
@@ -159,7 +162,9 @@ async def async_main() -> None:
         tm = TradeManager(cfg, mt5_client, BASE_DIR,
                           channel_name=ch.channel_name,
                           position_counter=position_counter,
-                          state_file=state_file)
+                          state_file=state_file,
+                          lot_size_override=ch.lot_size,
+                          close_lot_per_tp_override=ch.close_lot_per_tp)
         position_counter.register(tm)
         trade_managers[ch.channel_id] = tm
         all_managers.append(tm)

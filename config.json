@@ -2,7 +2,8 @@
   "channels": [
     {"id": -1002079334288, "name": "TRUE NORTH - VIP"},
     {"id": -1001417502545, "name": "GOLD VIP Signal"},
-    {"id": -1001855862157, "name": "TRADE WITH HASSNIN"}
+    {"id": -1001855862157, "name": "TRADE WITH HASSNIN"},
+    {"id": -1002215693287, "name": "TWM - XAUUSD ANALYSIS", "lot_size": 0.01, "close_lot_per_tp": 0.01}
   ],
   "trading": {
     "pair": "XAUUSD",

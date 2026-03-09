@@ -37,13 +37,17 @@ class PositionCounter:
 class TradeManager:
     def __init__(self, config: Config, mt5: MT5Client, base_dir: str,
                  channel_name: str = "", position_counter: "PositionCounter" = None,
-                 state_file: str = "state.json"):
+                 state_file: str = "state.json",
+                 lot_size_override: float = None, close_lot_per_tp_override: float = None):
         self.config = config
         self.mt5 = mt5
         self.base_dir = base_dir
         self.channel_name = channel_name
         self.position_counter = position_counter
         self.state_path = os.path.join(base_dir, state_file)
+        # Per-channel lot overrides (None = use global config)
+        self._lot_size = lot_size_override or config.lot_size
+        self._close_lot_per_tp = close_lot_per_tp_override or config.close_lot_per_tp
         self.active_trade: Optional[TradeState] = None
         self._load_state()
 
@@ -180,7 +184,7 @@ class TradeManager:
         # Even with no TPs, multi-position generates defaults ($2/$5/$8 from market)
         use_multi = (
             tp_distance <= 0
-            and self.config.close_lot_per_tp > 0
+            and self._close_lot_per_tp > 0
         )
 
         pending_order_tickets = []
@@ -194,22 +198,22 @@ class TradeManager:
                 sub_tickets = tickets
         elif is_limit:
             result = await self.mt5.open_limit_order_async(
-                signal.direction, self.config.lot_size, signal.price, signal.sl, tp_distance)
+                signal.direction, self._lot_size, signal.price, signal.sl, tp_distance)
             if not result.success:
                 return f"Order failed: {result.error_message}"
             sub_tickets = []
             pending_order_tickets = [result.ticket]
             entry_price = result.price or signal.price
-            total_lot = self.config.lot_size
+            total_lot = self._lot_size
         else:
             # Single market position with fixed TP
             result = await self.mt5.open_position_async(
-                signal.direction, self.config.lot_size, signal.sl, tp_distance)
+                signal.direction, self._lot_size, signal.sl, tp_distance)
             if not result.success:
                 return f"Order failed: {result.error_message}"
             sub_tickets = [result.ticket]
             entry_price = result.price or signal.price
-            total_lot = self.config.lot_size
+            total_lot = self._lot_size
 
         if not sub_tickets and not pending_order_tickets:
             return "Order failed: all positions failed to open"
@@ -243,7 +247,7 @@ class TradeManager:
             else:
                 tp_str = "Default TPs (no TPs in signal)"
             kind = "orders" if is_limit else "positions"
-            lot_str = f"{num_orders} {kind} x {self.config.close_lot_per_tp} lot = {total_lot:.2f}"
+            lot_str = f"{num_orders} {kind} x {self._close_lot_per_tp} lot = {total_lot:.2f}"
         elif tp_distance > 0:
             actual_tp = entry_price + tp_distance if signal.direction == Direction.BUY else entry_price - tp_distance
             tp_str = f"Fixed TP: {actual_tp:.2f}"
@@ -263,7 +267,7 @@ class TradeManager:
 
     async def _open_multi_positions(self, signal: ParsedSignal, is_limit: bool = False) -> tuple[list[int], float, float]:
         """Open N separate positions/limit orders, each with its own TP. Returns (tickets, entry_price, total_lot)."""
-        max_splits = max(1, int(round(self.config.lot_size / self.config.close_lot_per_tp)))
+        max_splits = max(1, int(round(self._lot_size / self._close_lot_per_tp)))
 
         # For limit orders, validate TPs against the signal (entry) price, not market price
         # (market may be far from entry — that's the whole point of a limit order)
@@ -303,13 +307,13 @@ class TradeManager:
         sub_tickets = []
         entry_price = None
         total_lot = 0.0
-        remaining = self.config.lot_size
+        remaining = self._lot_size
         carry = 0.0  # Accumulated lot from failed positions
 
         for i in range(num_positions):
             # Last position gets the remainder (handles rounding)
             if i < num_positions - 1:
-                lot = round(self.config.close_lot_per_tp + carry, 2)
+                lot = round(self._close_lot_per_tp + carry, 2)
             else:
                 lot = round(remaining, 2)
 
@@ -334,7 +338,7 @@ class TradeManager:
                          kind, i + 1, num_positions, result.ticket, lot, tp)
             else:
                 # Failed — lot carries forward to next position
-                carry += self.config.close_lot_per_tp
+                carry += self._close_lot_per_tp
                 log.warning("Sub-%s %d/%d failed: %s — %.2f lot carries forward",
                             kind, i + 1, num_positions, result.error_message, carry)
 
@@ -442,7 +446,7 @@ class TradeManager:
             return "Invalid SL"
 
         # At least 1 TP required (unless close_lot_per_tp is set — multi-position generates defaults)
-        if not signal.tp and self.config.fixed_tp_distance <= 0 and self.config.close_lot_per_tp <= 0:
+        if not signal.tp and self.config.fixed_tp_distance <= 0 and self._close_lot_per_tp <= 0:
             return "No TP levels"
 
         # Rule 5: SL direction
@@ -909,7 +913,7 @@ class TradeManager:
                 msg = (
                     f"Limit order FILLED — {trade.direction.value} "
                     f"{trade.pair} @ {trade.entry_price:.2f}\n"
-                    f"   {len(trade.sub_tickets)} positions x {self.config.close_lot_per_tp} lot"
+                    f"   {len(trade.sub_tickets)} positions x {self._close_lot_per_tp} lot"
                 )
                 log.info(msg)
                 return msg
