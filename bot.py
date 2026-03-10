@@ -7,6 +7,7 @@ from typing import Optional
 
 from telethon import TelegramClient, events
 
+
 log = logging.getLogger("signal_trader.bot")
 
 BOT_STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_state.json")
@@ -152,3 +153,4 @@ class SignalTraderBot:
         except Exception as e:
             log.error("Bot /stop error: %s", e, exc_info=True)
             await event.reply(f"Error: {e}")
+

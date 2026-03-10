@@ -1,5 +1,6 @@
 """Signal Parser — Uses Claude Code SDK to classify and parse VIP channel messages."""
 
+import asyncio
 import json
 import logging
 import re
@@ -17,6 +18,21 @@ _TRADING_KEYWORDS = re.compile(
 )
 _URL_ONLY = re.compile(r'^https?://\S+$')
 _EMOJI_ONLY = re.compile(r'^[\U0001f300-\U0001fAFF\U00002702-\U000027B0\s\u200d\ufe0f*#]+$')
+
+# Regex fallback patterns (used when Claude SDK is unavailable)
+_RE_BUY_SELL_NOW = re.compile(r'\b(buy|sell)\s+now\s+xauusd\b', re.IGNORECASE)
+_RE_BUY_SELL_LIMIT = re.compile(r'\b(buy|sell)\s+limit\s+xauusd\b', re.IGNORECASE)
+_RE_BUY_SELL_BARE = re.compile(r'\b(buy|sell)\s+xauusd\b', re.IGNORECASE)
+_RE_TP_HIT = re.compile(r'\btp\s*(\d)\s*hit\b', re.IGNORECASE)
+_RE_CLOSE = re.compile(r'\b(close\s+all|exit\s+trade)\b', re.IGNORECASE)
+_RE_SL_BREAKEVEN = re.compile(r'\bsl\s+to\s+(breakeven|entry|be)\b', re.IGNORECASE)
+_RE_FULL_SIGNAL = re.compile(
+    r'\b(buy|sell)\b.*?(?:price|@|entry)?\s*(\d{3,5}(?:\.\d+)?)'
+    r'.*?\bsl\b[:\s]*(\d{3,5}(?:\.\d+)?)'
+    r'((?:.*?\btp\d?\b[:\s]*\d{3,5}(?:\.\d+)?)+)',
+    re.IGNORECASE | re.DOTALL
+)
+_RE_TP_VALUES = re.compile(r'\btp\d?\b[:\s]*(\d{3,5}(?:\.\d+)?)', re.IGNORECASE)
 
 log = logging.getLogger("signal_trader.parser")
 
@@ -102,36 +118,49 @@ class SignalParser:
                 reason="Pre-filter: no trading keywords",
             )
 
-        try:
-            raw_response = ""
-            async for message in query(prompt=message_text, options=self.options):
-                if isinstance(message, AssistantMessage):
-                    for block in message.content:
-                        if isinstance(block, TextBlock):
-                            raw_response += block.text
+        max_retries = 3
+        last_error = None
 
-            raw_response = raw_response.strip()
-            log.debug("Claude SDK response: %s", raw_response)
+        for attempt in range(1, max_retries + 1):
+            try:
+                raw_response = ""
+                async for message in query(prompt=message_text, options=self.options):
+                    if isinstance(message, AssistantMessage):
+                        for block in message.content:
+                            if isinstance(block, TextBlock):
+                                raw_response += block.text
 
-            if not raw_response:
-                log.warning("Empty response from Claude SDK")
-                return ParsedSignal(
-                    type=SignalType.NOISE,
-                    raw_message=message_text,
-                    timestamp=timestamp,
-                    reason="Empty Claude response",
-                )
+                raw_response = raw_response.strip()
+                log.debug("Claude SDK response: %s", raw_response)
 
-            return self._parse_response(raw_response, message_text, timestamp)
+                if not raw_response:
+                    log.warning("Empty response from Claude SDK (attempt %d/%d)", attempt, max_retries)
+                    last_error = "Empty Claude response"
+                    if attempt < max_retries:
+                        await asyncio.sleep(1)
+                    continue
 
-        except Exception as e:
-            log.error("Claude SDK error: %s", e)
-            return ParsedSignal(
-                type=SignalType.NOISE,
-                raw_message=message_text,
-                timestamp=timestamp,
-                reason=f"Parse error: {e}",
-            )
+                return self._parse_response(raw_response, message_text, timestamp)
+
+            except Exception as e:
+                last_error = str(e)
+                log.warning("Claude SDK error (attempt %d/%d): %s", attempt, max_retries, e)
+                if attempt < max_retries:
+                    await asyncio.sleep(1)
+
+        # All retries exhausted — try regex fallback
+        log.warning("Claude SDK failed after %d attempts, trying regex fallback", max_retries)
+        fallback = self._regex_fallback(message_text, timestamp)
+        if fallback is not None:
+            log.info("Regex fallback matched: type=%s | %s", fallback.type.value, message_text[:80])
+            return fallback
+
+        return ParsedSignal(
+            type=SignalType.NOISE,
+            raw_message=message_text,
+            timestamp=timestamp,
+            reason=f"SDK failed after {max_retries} retries: {last_error}",
+        )
 
     def _parse_response(self, raw: str, message_text: str, timestamp: float) -> ParsedSignal:
         """Parse Claude's JSON response into a ParsedSignal."""
@@ -202,6 +231,100 @@ class SignalParser:
 
         log.info("Parsed: type=%s | %s", signal_type.value, message_text[:80])
         return base
+
+    def _regex_fallback(self, message_text: str, timestamp: float) -> Optional[ParsedSignal]:
+        """Last-resort regex parser for common signal patterns when Claude SDK is down."""
+        text = message_text.strip()
+
+        # "BUY NOW XAUUSD" / "SELL NOW XAUUSD"
+        m = _RE_BUY_SELL_NOW.search(text)
+        if m:
+            return ParsedSignal(
+                type=SignalType.NEW_SIGNAL,
+                raw_message=message_text,
+                timestamp=timestamp,
+                direction=Direction.BUY if m.group(1).upper() == "BUY" else Direction.SELL,
+                execution=OrderExecution.MARKET,
+                pair="XAUUSD",
+                price=0,
+            )
+
+        # "BUY LIMIT XAUUSD" / "SELL LIMIT XAUUSD"
+        m = _RE_BUY_SELL_LIMIT.search(text)
+        if m:
+            return ParsedSignal(
+                type=SignalType.NEW_SIGNAL,
+                raw_message=message_text,
+                timestamp=timestamp,
+                direction=Direction.BUY if m.group(1).upper() == "BUY" else Direction.SELL,
+                execution=OrderExecution.LIMIT,
+                pair="XAUUSD",
+                price=0,
+            )
+
+        # Full signal: direction + price + SL + TPs
+        m = _RE_FULL_SIGNAL.search(text)
+        if m:
+            direction_str = m.group(1).upper()
+            price = _to_float(m.group(2))
+            sl = _to_float(m.group(3))
+            tp_matches = _RE_TP_VALUES.findall(text)
+            tps = [_to_float(t) for t in tp_matches if _to_float(t) is not None]
+            return ParsedSignal(
+                type=SignalType.NEW_SIGNAL,
+                raw_message=message_text,
+                timestamp=timestamp,
+                direction=Direction.BUY if direction_str == "BUY" else Direction.SELL,
+                execution=OrderExecution.MARKET,
+                pair="XAUUSD",
+                price=price,
+                sl=sl,
+                tp=tps,
+            )
+
+        # "TP1 Hit", "TP2 Hit", etc.
+        m = _RE_TP_HIT.search(text)
+        if m:
+            return ParsedSignal(
+                type=SignalType.TP_HIT,
+                raw_message=message_text,
+                timestamp=timestamp,
+                tp_number=int(m.group(1)),
+            )
+
+        # "Close all", "Exit trade"
+        if _RE_CLOSE.search(text):
+            return ParsedSignal(
+                type=SignalType.CLOSE_SIGNAL,
+                raw_message=message_text,
+                timestamp=timestamp,
+                reason="Regex fallback: close signal",
+            )
+
+        # "SL to breakeven", "SL to entry"
+        if _RE_SL_BREAKEVEN.search(text):
+            return ParsedSignal(
+                type=SignalType.SL_UPDATE,
+                raw_message=message_text,
+                timestamp=timestamp,
+                new_sl=0,
+                reason="Regex fallback: SL to breakeven/entry",
+            )
+
+        # Bare "BUY XAUUSD" / "SELL XAUUSD" (no NOW/LIMIT qualifier)
+        m = _RE_BUY_SELL_BARE.search(text)
+        if m:
+            return ParsedSignal(
+                type=SignalType.NEW_SIGNAL,
+                raw_message=message_text,
+                timestamp=timestamp,
+                direction=Direction.BUY if m.group(1).upper() == "BUY" else Direction.SELL,
+                execution=OrderExecution.MARKET,
+                pair="XAUUSD",
+                price=0,
+            )
+
+        return None  # No pattern matched — caller falls through to NOISE
 
 
 def _to_float(val) -> Optional[float]:

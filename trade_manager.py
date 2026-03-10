@@ -286,7 +286,7 @@ class TradeManager:
                             tp, ref_price, signal.direction.value)
 
         # Pad with default TPs ($2, $5, $8 from current price) if not enough valid ones
-        default_distances = [2.0, 5.0, 8.0]
+        default_distances = [2.0, 4.0, 6.0, 8.0, 10.0]
         if len(valid_tps) < max_splits:
             for d in default_distances:
                 if len(valid_tps) >= max_splits:
